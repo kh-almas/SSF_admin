@@ -838,6 +838,22 @@ settingsClose.addEventListener('click', () => {
     toggleSettings();
 });
 
+const topLogout = document.getElementById('topLogout');
+
+topLogout.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    document.cookie = 'email=; path=/; max-age=0';
+    document.cookie = 'userId=; path=/; max-age=0';
+    document.cookie = 'userToken=; path=/; max-age=0';
+
+    window.localStorage.removeItem('email');
+    window.sessionStorage.removeItem('userId');
+    window.sessionStorage.removeItem('userToken');
+
+    window.location.href = '/';
+});
+
 openAddUserBtn.addEventListener('click', () => {
     resetAddUserForm();
     toggleAddUserPanel();
