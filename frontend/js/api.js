@@ -1,9 +1,32 @@
 'use strict';
 
 const apiPath = '/api/v1';
-const userEmail = window.localStorage.email;
-let userId = window.sessionStorage.userId;
-let userToken = window.sessionStorage.userToken;
+const userEmail =
+    window.localStorage.email ||
+    decodeURIComponent(
+        document.cookie
+            .split('; ')
+            .find(row => row.startsWith('email='))
+            ?.split('=')[1] || ''
+    );
+
+let userId =
+    window.sessionStorage.userId ||
+    decodeURIComponent(
+        document.cookie
+            .split('; ')
+            .find(row => row.startsWith('userId='))
+            ?.split('=')[1] || ''
+    );
+
+let userToken =
+    window.sessionStorage.userToken ||
+    decodeURIComponent(
+        document.cookie
+            .split('; ')
+            .find((row) => row.startsWith('userToken='))
+            ?.split('=')[1] || ''
+    );
 
 const headers = {
     'x-access-token': `${userToken}`,
