@@ -1,5 +1,7 @@
 'use strict';
 
+import axios from 'axios';
+
 const apiPath = '/api/v1';
 const userEmail =
     window.localStorage.email ||
@@ -19,18 +21,19 @@ let userId =
             ?.split('=')[1] || ''
     );
 
-let userToken =
-    window.sessionStorage.userToken ||
-    decodeURIComponent(
-        document.cookie
-            .split('; ')
-            .find((row) => row.startsWith('userToken='))
-            ?.split('=')[1] || ''
-    );
+// let userToken =
+//     window.sessionStorage.userToken ||
+//     decodeURIComponent(
+//         document.cookie
+//             .split('; ')
+//             .find((row) => row.startsWith('userToken='))
+//             ?.split('=')[1] || ''
+//     );
 
-const headers = {
-    'x-access-token': `${userToken}`,
-};
+// const headers = {
+//     'x-access-token': `${userToken}`,
+// };
+axios.defaults.withCredentials = true;
 
 let isOidcMode = false;
 

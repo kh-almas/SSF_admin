@@ -12,6 +12,7 @@
  * @version 1.3.52
  */
 
+
 const userAgent = navigator.userAgent;
 const parser = new UAParser(userAgent);
 const result = parser.getResult();
@@ -315,9 +316,9 @@ let user = {
 
 $(document).ready(async function () {
     // Strip token from URL to prevent leakage via browser history/referrer
-    if (window.location.search.includes('token=')) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
+    // if (window.location.search.includes('token=')) {
+    //     window.history.replaceState({}, document.title, window.location.pathname);
+    // }
 
     // Check if OIDC is enabled and initialize accordingly
     try {
@@ -845,12 +846,17 @@ topLogout.addEventListener('click', function (e) {
 
     document.cookie = 'email=; path=/; max-age=0';
     document.cookie = 'userId=; path=/; max-age=0';
-    document.cookie = 'userToken=; path=/; max-age=0';
+    // document.cookie = 'userToken=; path=/; max-age=0';
 
     window.localStorage.removeItem('email');
     window.sessionStorage.removeItem('userId');
-    window.sessionStorage.removeItem('userToken');
+    // window.sessionStorage.removeItem('userToken');
 
+    // window.location.href = '/';
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await axios.post(`${apiPath}/user/logout`, {}, { withCredentials: true });
     window.location.href = '/';
 });
 

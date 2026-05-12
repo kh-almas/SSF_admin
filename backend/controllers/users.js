@@ -100,10 +100,17 @@ async function userLogin(req, res) {
                     if ((await utils.isAdmin(email, username, password)) && userFindOne.role !== 'admin') {
                         userFindOne.role = 'admin';
                     }
-                    userFindOne.token = token;
+                    // userFindOne.token = token;
                     userFindOne.updatedAt = dateNow;
+                    // const saveUserFindOne = await userFindOne.save();
+                    // log.debug('User login OK', saveUserFindOne);
                     const saveUserFindOne = await userFindOne.save();
-                    log.debug('User login OK', saveUserFindOne);
+                    res.cookie('userToken', token, {
+                        httpOnly: true,
+                        secure: true,
+                        sameSite: 'Lax',
+                        maxAge: 7 * 24 * 3600 * 1000,
+                    });
                     res.status(201).json(saveUserFindOne);
                 } else {
                     log.debug('User found, wrong password!');

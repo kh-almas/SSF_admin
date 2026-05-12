@@ -1,4 +1,7 @@
 'use strict';
+import { userLogin } from '../js/api.js';
+window.config = cfg;
+window.userLogin = userLogin;
 
 console.log('Location', window.location);
 
@@ -188,12 +191,12 @@ function signupOrLogin(data) {
                 }
             } else {
                 window.sessionStorage.userId = res._id;
-                window.sessionStorage.userToken = res.token;
+                // window.sessionStorage.userToken = res.token;
 
                 document.cookie = `email=${encodeURIComponent(res?.email || '')}; path=/; max-age=604800; SameSite=Lax`;
                 document.cookie = `userId=${encodeURIComponent(res?._id || '')}; path=/; max-age=604800; SameSite=Lax`;
-                document.cookie = `userToken=${encodeURIComponent(res?.token || '')}; path=/; max-age=604800; SameSite=Lax`;
-                window.location.href = `/client/?token=${res.token}`;
+                // document.cookie = `userToken=${encodeURIComponent(res?.token || '')}; path=/; max-age=604800; SameSite=Lax`;
+                window.location.href = `/client/`;
                 // Token will be stripped from URL by client.js after reading
             }
         })

@@ -43,14 +43,16 @@
             const checkuserToken = getCookie('userToken');
 
             if (checkemail && checkuserId && checkuserToken) {
-                window.location.href = `client/?token=${checkuserToken}`;
+                window.location.href = `client`;
             }
         </script>
 
         <script async src="../js/stats.js"></script>
         <script defer src="../js/swal.js"></script>
-        <script defer src="../js/api.js"></script>
-        <script defer src="../js/home.js"></script>
+<!--        <script defer src="../js/api.js"></script>-->
+<!--        <script defer src="../js/home.js"></script>-->
+        <script type="module" src="../js/api.js"></script>
+        <script type="module" src="../js/home.js"></script>
         <script defer src="../js/translate.js"></script>
     </head>
     <body>
