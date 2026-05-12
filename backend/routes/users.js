@@ -1,0 +1,83 @@
+'use strict';
+
+const express = require('express');
+const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
+const api = require('../middleware/api');
+const validator = require('../middleware/validator');
+const { loginLimiter, registrationLimiter } = require('../middleware/rateLimiter');
+
+const router = express.Router();
+const controllersUsers = require('../controllers/users');
+
+//CREATE: /api/v1/user
+router.post('/user', registrationLimiter, validator, (req, res) => {
+    controllersUsers.userCreate(req, res);
+});
+
+//LOGIN: /api/v1/user/login
+router.post('/user/login', loginLimiter, validator, (req, res) => {
+    controllersUsers.userLogin(req, res);
+});
+
+//POST: /api/v1/user/isAuth/
+router.post('/user/isAuth', api, (req, res) => {
+    controllersUsers.userIsAuth(req, res);
+});
+
+//POST: /api/v1/user/isRoomAllowed/
+router.post('/user/isRoomAllowed', api, (req, res) => {
+    controllersUsers.userIsRoomAllowed(req, res);
+});
+
+//POST: /api/v1/user/allowedRooms/
+router.post('/user/roomsAllowed', api, (req, res) => {
+    controllersUsers.userRoomsAllowed(req, res);
+});
+
+//GET: /api/v1/user/confirmation/?token=<token>
+router.get('/user/confirmation', auth, (req, res) => {
+    controllersUsers.userConfirmation(req, res);
+});
+
+//GET: /api/v1/user/me (current authenticated user)
+router.get('/user/me', auth, (req, res) => {
+    controllersUsers.userGetMe(req, res);
+});
+
+//GET: /api/v1/user/all (admin only)
+router.get('/user/all', admin, (req, res) => {
+    controllersUsers.userGetAll(req, res);
+});
+
+//GET: /api/v1/user/id
+router.get('/user/:id', auth, (req, res) => {
+    controllersUsers.userGet(req, res);
+});
+
+//UPDATE: /api/v1/user/id
+router.patch('/user/:id', auth, validator, (req, res) => {
+    controllersUsers.userUpdate(req, res);
+});
+
+//DELETE: /api/v1/user/id
+router.delete('/user/:id', auth, (req, res) => {
+    controllersUsers.userDelete(req, res);
+});
+
+//DELETE: /api/v1/user/deleteALL
+router.delete('/user/deleteALL', admin, (req, res) => {
+    controllersUsers.userDeleteALL(req, res);
+});
+
+//CREATE: /api/v1/user/admin-create (admin only, skip email verification)
+router.post('/user/admin-create', admin, validator, (req, res) => {
+    controllersUsers.userAdminCreate(req, res);
+});
+
+//POST: /api/v1/user/invite (admin only)
+router.post('/user/invite', admin, (req, res) => {
+    controllersUsers.sendInvitation(req, res);
+});
+
+module.exports = router;

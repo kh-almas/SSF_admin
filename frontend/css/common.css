@@ -1,0 +1,47 @@
+/*--------------------------------------------------------------
+# Google Translate
+--------------------------------------------------------------*/
+
+.skiptranslate iframe,
+.goog-te-banner-frame.skiptranslate,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-ZVi9od-aZ2wEe-OiiCO,
+#goog-gt-tt,
+#goog-gt-tt *,
+#goog-gt-vt,
+#goog-gt-vt * {
+    display: none !important;
+}
+
+#google_translate_element select {
+    background: var(--secondary-color) !important;
+    color: var(--text-color) !important;
+}
+
+/*--------------------------------------------------------------
+# Others
+--------------------------------------------------------------*/
+
+.back-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: fit-content;
+    margin: 20px auto 0;
+    padding: 8px 16px;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.back-login:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.back-login i {
+    font-size: 12px;
+}

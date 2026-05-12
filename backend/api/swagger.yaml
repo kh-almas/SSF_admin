@@ -1,0 +1,750 @@
+openapi: 3.0.3
+
+info:
+    title: MiroTalk WebRTC admin API
+    description: 'API description for external applications that integrates with MiroTalk WebRTC admin.'
+    contact:
+        email: miroslav.pejic.85@gmail.com
+    version: 1.0.0
+
+servers:
+    - url: /api/v1
+
+tags:
+    - name: user
+      description: Operations about user
+    - name: room
+      description: Operations about room
+
+paths:
+    /user:
+        post:
+            tags:
+                - user
+            summary: Create user
+            description: Create new user in the store.
+            operationId: createUser
+            requestBody:
+                description: Create user object
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserReq'
+                required: true
+            responses:
+                '201':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserRes'
+                '400':
+                    description: Bad request
+
+    /user/login:
+        post:
+            tags:
+                - user
+            summary: Login or add user to the store
+            description: Login or add user to the store
+            operationId: userLogin
+            requestBody:
+                description: Login or create user in the store
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserReq'
+                required: true
+            responses:
+                '201':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserRes'
+                '400':
+                    description: Bad request
+
+    /user/isAuth:
+        post:
+            tags:
+                - api
+            summary: Check if user authenticated
+            description: Check if user authenticated
+            operationId: userIsAuth
+            requestBody:
+                description: Check if user authenticate
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserIsAuthReq'
+                required: true
+            responses:
+                '201':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserIsAuthRes'
+                '400':
+                    description: Bad request
+
+    /user/isRoomAllowed:
+        post:
+            tags:
+                - api
+            summary: Check if room allowed for user
+            description: Check if room allowed
+            operationId: isRoomAllowed
+            requestBody:
+                description: Check if room allowed
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserIsRoomAllowedReq'
+                required: true
+            responses:
+                '201':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserIsRoomAllowedRes'
+                '400':
+                    description: Bad request
+
+    /user/roomsAllowed:
+        post:
+            tags:
+                - api
+            summary: User allowed rooms
+            description: User allowed rooms
+            operationId: roomsAllowed
+            requestBody:
+                description: Check rooms allowed
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserRoomsAllowedReq'
+                required: true
+            responses:
+                '201':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserRoomsAllowedRes'
+                '400':
+                    description: Bad request
+
+    /user/confirmation/{token}:
+        get:
+            security:
+                - authorization: []
+            tags:
+                - user
+            summary: User confirmation
+            description: This can only be done by the logged in user.
+            operationId: userConfirmation
+            parameters:
+                - name: token
+                  in: path
+                  description: 'The id needs to be fetched.'
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserRes'
+                '400':
+                    description: Bad request
+                '403':
+                    description: Forbidden
+                '409':
+                    description: Already confirmed
+
+    /user/admin-create:
+        post:
+            security:
+                - authorization: []
+            tags:
+                - user
+            summary: Admin create user
+            description: Create a new user directly (skip email verification). Admin only.
+            operationId: userAdminCreate
+            requestBody:
+                description: User details
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserReq'
+                required: true
+            responses:
+                '201':
+                    description: User created successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserRes'
+                '400':
+                    description: Bad request
+                '403':
+                    description: Forbidden
+                '409':
+                    description: User already exists
+
+    /user/invite:
+        post:
+            security:
+                - authorization: []
+            tags:
+                - user
+            summary: Send invitation email
+            description: Send an invitation email to a user with their login credentials.
+            operationId: sendInvitation
+            requestBody:
+                description: Invitation details
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                username:
+                                    type: string
+                                password:
+                                    type: string
+                            required:
+                                - email
+                                - username
+                                - password
+                required: true
+            responses:
+                '200':
+                    description: Invitation email sent successfully
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                '400':
+                    description: Bad request
+                '403':
+                    description: Forbidden
+
+    /password/change:
+        post:
+            security:
+                - authorization: []
+            tags:
+                - user
+            summary: Change password
+            description: Change the authenticated user's password.
+            operationId: changePassword
+            requestBody:
+                description: Current and new password
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                currentPassword:
+                                    type: string
+                                newPassword:
+                                    type: string
+                            required:
+                                - currentPassword
+                                - newPassword
+                required: true
+            responses:
+                '200':
+                    description: Password changed successfully
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                '400':
+                    description: Bad request
+                '404':
+                    description: User not found
+
+    /user/{id}:
+        get:
+            security:
+                - authorization: []
+            tags:
+                - user
+            summary: Get user by id
+            description: This can only be done by the logged in user.
+            operationId: getUserById
+            parameters:
+                - name: id
+                  in: path
+                  description: 'The id needs to be fetched.'
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserRes'
+                '400':
+                    description: Bad request
+                '403':
+                    description: Forbidden
+
+        patch:
+            security:
+                - authorization: []
+            tags:
+                - user
+            summary: Update user by id
+            description: This can only be done by the logged in user.
+            operationId: updateUserById
+            parameters:
+                - name: id
+                  in: path
+                  description: id that need to be deleted
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                description: Update an existent user in the store
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserReq'
+            responses:
+                '201':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserRes'
+                '400':
+                    description: Bad request
+                '403':
+                    description: Forbidden
+
+        delete:
+            security:
+                - authorization: []
+            tags:
+                - user
+            summary: Delete user by id and all associated rooms
+            description: This can only be done by the logged in user.
+            operationId: deleteUserById
+            parameters:
+                - name: id
+                  in: path
+                  description: The name that needs to be deleted
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Successful operation
+                '400':
+                    description: Bad request
+                '403':
+                    description: Forbidden
+
+    /room:
+        post:
+            security:
+                - authorization: []
+            tags:
+                - room
+            summary: Create room
+            description: This can only be done by the logged in user.
+            operationId: createRoom
+            requestBody:
+                description: Create room object
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RoomReq'
+                required: true
+            responses:
+                '201':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RoomRes'
+                '400':
+                    description: Bad request
+                '403':
+                    description: Forbidden
+
+    /room/exists:
+        post:
+            tags:
+                - api
+            summary: Check if room exists
+            description: Check if room exists
+            operationId: roomExists
+            requestBody:
+                description: Room exists
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RoomExistsReq'
+                required: true
+            responses:
+                '201':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RoomExistsRes'
+                '400':
+                    description: Bad request
+
+    /room/findBy/{userId}:
+        get:
+            security:
+                - authorization: []
+            tags:
+                - room
+            summary: Get rooms by user id
+            description: This can only be done by the logged in user.
+            operationId: getRoomByUserId
+            parameters:
+                - name: userId
+                  in: path
+                  description: 'The userId needs to be fetched.'
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RoomRes'
+                '400':
+                    description: Bad request
+                '403':
+                    description: Forbidden
+
+        delete:
+            security:
+                - authorization: []
+            tags:
+                - room
+            summary: Delete rooms by user id
+            description: This can only be done by the logged in user.
+            operationId: deleteRoomByUserId
+            parameters:
+                - name: userId
+                  in: path
+                  description: 'The userId needs to be fetched.'
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RoomRes'
+                '400':
+                    description: Bad request
+                '403':
+                    description: Forbidden
+
+    /room/{id}:
+        get:
+            security:
+                - authorization: []
+            tags:
+                - room
+            summary: Get room by id
+            description: This can only be done by the logged in user.
+            operationId: getRoomById
+            parameters:
+                - name: id
+                  in: path
+                  description: 'The id needs to be fetched.'
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RoomRes'
+                '400':
+                    description: Bad request
+                '403':
+                    description: Forbidden
+
+        patch:
+            security:
+                - authorization: []
+            tags:
+                - room
+            summary: Update room by id
+            description: This can only be done by the logged in user.
+            operationId: updateRoomById
+            parameters:
+                - name: id
+                  in: path
+                  description: id that need to be deleted
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                description: Update an existent room in the store
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RoomReq'
+            responses:
+                '201':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RoomRes'
+                '400':
+                    description: Bad request
+                '403':
+                    description: Forbidden
+
+        delete:
+            security:
+                - authorization: []
+            tags:
+                - room
+            summary: Delete room by id
+            description: This can only be done by the logged in user.
+            operationId: deleteRoomById
+            parameters:
+                - name: id
+                  in: path
+                  description: The name that needs to be deleted
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Successful operation
+                '400':
+                    description: Bad request
+                '403':
+                    description: Forbidden
+
+components:
+    schemas:
+        UserReq:
+            type: object
+            properties:
+                username:
+                    type: string
+                    example: 'Miroslav Pejic'
+                email:
+                    type: string
+                    example: 'miroslav.pejic.85@gmail.com'
+                password:
+                    type: string
+                    example: 'Test@123'
+        UserIsAuthReq:
+            type: object
+            properties:
+                email:
+                    type: string
+                    example: 'miroslav.pejic.85@gmail.com'
+                username:
+                    type: string
+                    example: 'Miroslav Pejic'
+                password:
+                    type: string
+                    example: 'Test@123'
+                api_secret_key:
+                    type: string
+                    example: 'mirotalkweb_default_secret'
+
+        UserIsRoomAllowedReq:
+            type: object
+            properties:
+                email:
+                    type: string
+                    example: 'miroslav.pejic.85@gmail.com'
+                username:
+                    type: string
+                    example: 'Miroslav Pejic'
+                room:
+                    type: string
+                    example: 'Room1'
+                api_secret_key:
+                    type: string
+                    example: 'mirotalkweb_default_secret'
+
+        UserRoomsAllowedReq:
+            type: object
+            properties:
+                email:
+                    type: string
+                    example: 'miroslav.pejic.85@gmail.com'
+                username:
+                    type: string
+                    example: 'Miroslav Pejic'
+                api_secret_key:
+                    type: string
+                    example: 'mirotalkweb_default_secret'
+
+        UserRes:
+            type: object
+            properties:
+                _id:
+                    type: string
+                    example: '63a58459810c58b53246adde'
+                role:
+                    type: string
+                    example: 'guest'
+                username:
+                    type: string
+                    example: 'Miroslav Pejic'
+                email:
+                    type: string
+                    example: 'miroslav.pejic.85@gmail.com'
+                password:
+                    type: string
+                    example: '$2a$10$r7odyhUvtH7rpCcu1rhPguTiPvmpLMNl5Kirm0Yn3dPzYXYHwA3oS'
+                token:
+                    type: string
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1pcm9zbGF2LnBlamljLjg1QGdtYWlsLmNvbSIsImlhdCI6MTY3MTc5MTcwNSwiZXhwIjoxNjcxNzk4OTA1fQ.er-Trhbl8bWVJHGsZasgLvBCE5ZiloDsv9zQhNm5B-U'
+                active:
+                    type: boolean
+                    enum: [true, false]
+                    example: true
+                createdAt:
+                    type: string
+                    example: '2022-12-23T10:35:05.234Z'
+                updatedAt:
+                    type: string
+                    example: '2022-12-23T11:35:05.234Z'
+                allow:
+                    type: array
+                    example: '[P2P, SFU, C2C, BRO]'
+                allowed_rooms:
+                    type: array
+                    example: '[*]'
+        UserIsAuthRes:
+            type: object
+            properties:
+                message:
+                    type: boolean
+                    enum: [true, false]
+                    example: true
+        UserIsRoomAllowedRes:
+            type: object
+            properties:
+                message:
+                    type: boolean
+                    enum: [true, false]
+                    example: true
+        UserRoomsAllowedRes:
+            type: object
+            properties:
+                message:
+                    type: array
+                    example: ['Room1', 'Room2']
+        RoomReq:
+            type: object
+            properties:
+                userId:
+                    type: string
+                    example: '63a58459810c58b53246adde'
+                type:
+                    type: string
+                    enum: ['P2P', 'SFU', 'C2C', 'BRO']
+                    example: 'P2P'
+                tag:
+                    type: string
+                    example: 'work'
+                email:
+                    type: string
+                    example: 'miroslav.pejic.85@gmail.com'
+                phone:
+                    type: string
+                    example: '+15734946078'
+                date:
+                    type: string
+                    example: '2022-12-31'
+                time:
+                    type: string
+                    example: '00:00'
+
+        RoomExistsReq:
+            type: object
+            properties:
+                room:
+                    type: string
+                    example: 'Room1'
+                api_secret_key:
+                    type: string
+                    example: 'mirotalkweb_default_secret'
+
+        RoomRes:
+            type: object
+            properties:
+                _id:
+                    type: string
+                    example: '63a55ea4bf614614c76b9034'
+                userId:
+                    type: string
+                    example: '63a58459810c58b53246adde'
+                type:
+                    type: string
+                    enum: ['P2P', 'SFU', 'C2C', 'BRO']
+                    example: 'P2P'
+                tag:
+                    type: string
+                    example: 'work'
+                email:
+                    type: string
+                    example: 'miroslav.pejic.85@gmail.com'
+                phone:
+                    type: string
+                    example: '+15734946078'
+                date:
+                    type: string
+                    example: '2022-12-31'
+                time:
+                    type: string
+                    example: '00:00'
+        RoomExistsRes:
+            type: object
+            properties:
+                message:
+                    type: boolean
+                    enum: [true, false]
+                    example: true
+    securitySchemes:
+        authorization:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+
+security:
+    - authorization: []

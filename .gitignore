@@ -1,0 +1,28 @@
+# git folder
+.git
+
+# npm
+node_modules
+npm-debug.log
+
+# mac
+.DS_Store
+
+# cache
+.cache
+
+# mongodb_data
+.mongodb_data
+.mongodb_data_local
+
+# personal
+.env
+config.js
+docker-push.sh
+docker-compose.yml
+migrate-mongo-config.js
+security
+marketing
+
+# VSCode settings
+.vscode/

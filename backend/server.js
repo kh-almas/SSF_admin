@@ -1,0 +1,222 @@
+'use strict';
+
+require('dotenv').config();
+
+const mongoose = require('mongoose');
+const express = require('express');
+const auth = require('./middleware/auth');
+const { isOidcEnabled, getOidcAuth, requiresAuth } = require('./middleware/oidc');
+const url = require('./middleware/url');
+const HtmlInjector = require('./middleware/htmlInjector');
+const corsOptions = require('./config/cors');
+const cors = require('cors');
+const compression = require('compression');
+const helmet = require('helmet');
+const api = require('./routes/api');
+const room = require('./routes/room');
+const sms = require('./routes/sms');
+const token = require('./routes/token');
+const users = require('./routes/users');
+const password = require('./routes/password');
+const dashboard = require('./routes/dashboard');
+const oidc = require('./routes/oidc');
+const config = require('./config');
+const ngrok = require('./common/ngrok');
+const sentry = require('./common/sentry');
+const logs = require('./common/logs');
+const path = require('path');
+const packageJson = require('../package.json');
+
+const log = new logs('Server');
+
+const apiPath = '/api/v1';
+
+sentry.start(); // Start sentry (optional)
+
+const SERVER_HOST = process.env.SERVER_HOST;
+const SERVER_PORT = process.env.SERVER_PORT;
+const SERVER_URL = process.env.SERVER_URL;
+const MONGO_URL = process.env.MONGO_URL;
+const MONGO_DATABASE = process.env.MONGO_DATABASE;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
+// Mandatory params to make this server up and running
+
+if (!SERVER_HOST || !SERVER_PORT || !SERVER_URL || !MONGO_URL || !MONGO_DATABASE) {
+    log.error('Invalid or missing .env file');
+    process.exit(1);
+}
+
+const home = SERVER_URL;
+const apiDocs = home + apiPath + '/docs';
+
+const frontendDir = path.join(__dirname, '../', 'frontend');
+
+const login = path.join(__dirname, '../', 'frontend/html/home.html');
+const client = path.join(__dirname, '../', 'frontend/html/client.html');
+const passwordForgot = path.join(__dirname, '../', 'frontend/html/password-forgot.html');
+const passwordReset = path.join(__dirname, '../', 'frontend/html/password-reset.html');
+const confirmation = path.join(__dirname, '../', 'frontend/html/confirmation.html');
+
+// File to cache and inject custom HTML data like OG tags and any other elements.
+const filesPath = [login, client, passwordForgot, passwordReset, confirmation];
+const htmlInjector = new HtmlInjector(filesPath, config || null);
+
+mongoose.set('strictQuery', true);
+
+mongoose
+    .connect(MONGO_URL, { dbName: MONGO_DATABASE })
+    .then(() => {
+        const app = express();
+
+        app.use(helmet.noSniff()); // Enable content type sniffing prevention
+        app.use(cors(corsOptions()));
+        app.use(compression());
+        app.use(express.static(frontendDir));
+        app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+        app.use(express.json({ limit: '10kb' }));
+
+        // OIDC middleware (when enabled, handles /login, /logout, /callback routes)
+        const oidcAuth = getOidcAuth();
+        if (oidcAuth) {
+            app.use(oidcAuth);
+            log.debug('OIDC authentication enabled');
+        }
+
+        // Logs requests
+        app.use(url, (req, res, next) => {
+            const sanitizedBody = { ...req.body };
+            const sensitiveFields = ['password', 'token', 'api_secret_key', 'secret'];
+            for (const field of sensitiveFields) {
+                if (sanitizedBody[field]) sanitizedBody[field] = '***';
+            }
+            const sanitizedHeaders = { ...req.headers };
+            if (sanitizedHeaders['x-access-token']) sanitizedHeaders['x-access-token'] = '***';
+            if (sanitizedHeaders['authorization']) sanitizedHeaders['authorization'] = '***';
+            if (sanitizedHeaders['cookie']) sanitizedHeaders['cookie'] = '***';
+            log.debug('New request:', {
+                headers: sanitizedHeaders,
+                body: sanitizedBody,
+                method: req.method,
+                path: req.originalUrl,
+            });
+            next();
+        });
+
+        app.use(apiPath, api);
+        app.use(apiPath, room);
+        app.use(apiPath, sms);
+        app.use(apiPath, token);
+        app.use(apiPath, users);
+        app.use(apiPath, password);
+        app.use(apiPath, dashboard);
+        app.use('/oidc', oidc);
+
+        if (isOidcEnabled()) {
+            // OIDC mode: redirect home to /client (OIDC middleware handles login redirect)
+            app.get('/', (req, res) => {
+                res.redirect('/client');
+            });
+            app.get('/client', requiresAuth(), (req, res) => {
+                htmlInjector.injectHtml(client, res);
+            });
+        } else {
+            // Standard mode: show login page
+            app.get('/', (req, res) => {
+                htmlInjector.injectHtml(login, res);
+            });
+            app.get('/client', auth, (req, res) => {
+                htmlInjector.injectHtml(client, res);
+            });
+        }
+
+        app.get('/password-forgot', (req, res) => {
+            htmlInjector.injectHtml(passwordForgot, res);
+        });
+
+        app.get('/password-reset', (req, res) => {
+            htmlInjector.injectHtml(passwordReset, res);
+        });
+
+        app.get('/confirmation', (req, res) => {
+            htmlInjector.injectHtml(confirmation, res);
+        });
+
+        app.get('/config', isOidcEnabled() ? requiresAuth() : auth, (req, res) => {
+            log.debug('Send config', config);
+            res.status(200).json(config);
+        });
+
+        app.use((req, res) => {
+            res.status(404).json({ message: 'Page not found' });
+        });
+
+        // Global error handler for URIError and other errors
+        app.use((err, req, res, next) => {
+            if (err instanceof URIError) {
+                log.warn('Malformed URI detected', {
+                    url: req.url,
+                    error: err.message,
+                });
+                return res.status(400).send({ status: 400, message: 'Invalid URL encoding' });
+            }
+            // Handle other errors
+            log.error('Unhandled error', {
+                url: req.url,
+                error: err.message,
+                stack: err.stack,
+            });
+            res.status(500).send({ status: 500, message: 'Internal server error' });
+        });
+
+        const server = app.listen(SERVER_PORT, null, () => {
+            if (ngrok.enabled()) {
+                ngrok.start();
+            } else {
+                log.info('Server', {
+                    cors: corsOptions(),
+                    home: home,
+                    apiDocs: apiDocs,
+                    environment: NODE_ENV,
+                    nodeVersion: process.versions.node,
+                    app_version: packageJson.version,
+                });
+            }
+        });
+
+        // Handle client errors (malformed/incomplete HTTP requests) gracefully
+        server.on('clientError', (err, socket) => {
+            err.code?.startsWith('HPE_') || err.message?.startsWith('Parse Error')
+                ? log.warn('Client HTTP parse error', { error: err.message, code: err.code })
+                : log.warn('Client connection error', { error: err.message, code: err.code });
+            if (socket && !socket.destroyed && socket.writable) {
+                socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+            }
+        });
+    })
+    .catch((err) => log.error('Mongoose init connection error: ' + err));
+
+mongoose.connection.on('connected', () => {
+    log.debug('Mongoose connection open to:', { url: MONGO_URL, db: MONGO_DATABASE });
+});
+
+mongoose.connection.on('error', (err) => {
+    log.error('Mongoose connection error:', { error: err, url: MONGO_URL, db: MONGO_DATABASE });
+});
+
+mongoose.connection.on('disconnected', () => {
+    log.debug('Mongoose connection disconnected');
+});
+
+process.on('SIGINT', () => {
+    mongoose.connection
+        .close()
+        .then(() => {
+            log.debug('Mongoose connection disconnected through app termination');
+            process.exit(0);
+        })
+        .catch((error) => {
+            log.error('Error closing MongoDB connection:', error);
+            process.exit(0);
+        });
+});

@@ -1,0 +1,56 @@
+'use strict';
+
+const SentryNode = require('@sentry/node');
+const logs = require('../common/logs');
+const log = new logs('Sentry');
+
+const SENTRY_ENABLED = process.env.SENTRY_ENABLED === 'true';
+const SENTRY_LOG_LEVELS = (process.env.SENTRY_LOG_LEVELS || 'error').split(',').map((level) => level.trim());
+const SENTRY_DSN = process.env.SENTRY_DSN;
+const SENTRY_TRACES_SAMPLE_RATE = parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.0');
+const ANSI_REGEX = /\u001b\[[0-9;]*m/g;
+
+function stripAnsi(str) {
+    return typeof str === 'string' ? str.replace(ANSI_REGEX, '') : str;
+}
+
+function patchConsoleForSentry() {
+    const originalConsole = {};
+    SENTRY_LOG_LEVELS.forEach((level) => {
+        originalConsole[level] = console[level];
+        console[level] = function (...args) {
+            const cleanArgs = args.map(stripAnsi);
+            switch (level) {
+                case 'warn':
+                    SentryNode.captureMessage(cleanArgs.join(' '), 'warning');
+                    break;
+                case 'error':
+                    args[0] instanceof Error
+                        ? SentryNode.captureException(args[0])
+                        : SentryNode.captureException(new Error(cleanArgs.join(' ')));
+                    break;
+            }
+            originalConsole[level].apply(console, args);
+        };
+    });
+}
+
+function start() {
+    if (SENTRY_ENABLED && typeof SENTRY_DSN === 'string' && SENTRY_DSN.trim()) {
+        log.info('Sentry monitoring started...');
+
+        SentryNode.init({
+            dsn: SENTRY_DSN,
+            tracesSampleRate: SENTRY_TRACES_SAMPLE_RATE,
+        });
+
+        patchConsoleForSentry();
+
+        // log.error('Sentry error', { foo: 'bar' });
+        // log.warn('Sentry warning');
+    }
+}
+
+module.exports = {
+    start,
+};
