@@ -35,13 +35,13 @@ module.exports = {
         },
         SFU: {
             Visible: true,
-            Protected: false, // host_protected or user_auth enabled
+            Protected: true, // host_protected or user_auth enabled
             Label: 'MiroTalk SFU',
-            Home: 'https://sfu.mirotalk.com',
-            Room: 'https://sfu.mirotalk.com/newroom',
-            Join: 'https://sfu.mirotalk.com/join/',
+            Home: 'https://localhost:3010',
+            Room: 'https://localhost:3010/newroom',
+            Join: 'https://localhost:3010/join/',
             GitHub: {
-                Visible: true,
+                Visible: false,
                 Repo: 'https://github.com/miroslavpejic85/mirotalksfu',
                 Star: 'https://github.com/miroslavpejic85/mirotalksfu/stargazers',
                 Shields: 'https://img.shields.io/github/stars/miroslavpejic85/mirotalksfu?style=flat',
