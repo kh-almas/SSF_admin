@@ -419,7 +419,7 @@ function loadConfig(cfg) {
     navLogoImage.setAttribute('src', appLogo);
     navLogoLabel.textContent = appName;
     navP2PLabel.textContent = config.MiroTalk.P2P.Label || 'MiroTalk P2P';
-    navSFULabel.textContent = config.MiroTalk.SFU.Label || 'MiroTalk SFU';
+    // navSFULabel.textContent = config.MiroTalk.SFU.Label || 'MiroTalk SFU';
     navC2CLabel.textContent = config.MiroTalk.C2C.Label || 'MiroTalk C2C';
     navBROLabel.textContent = config.MiroTalk.BRO.Label || 'MiroTalk BRO';
     navCMELabel.textContent = config.MiroTalk.CME?.Label || 'MiroTalk CME';
