@@ -83,15 +83,34 @@ supportBtn.onclick = () => {
     window.open('https://codecanyon.net/user/miroslavpejic85', '_blank');
 };
 
+// function handleLogin(e) {
+//     e.preventDefault();
+//     cleanSignUpInput();
+//     const validationError = validateInput(loginUsernameInput, loginEmailIdInput, loginPasswordIdInput);
+//     if (validationError) {
+//         popupMessage('warning', validationError);
+//         return false;
+//     }
+//     const data = gatherInputData(loginUsernameInput, loginEmailIdInput, loginPasswordIdInput);
+//     signupOrLogin(data);
+// }
+
 function handleLogin(e) {
     e.preventDefault();
+    console.log('Login button clicked');
+
     cleanSignUpInput();
+
     const validationError = validateInput(loginUsernameInput, loginEmailIdInput, loginPasswordIdInput);
     if (validationError) {
+        console.warn('Validation error:', validationError);
         popupMessage('warning', validationError);
         return false;
     }
+
     const data = gatherInputData(loginUsernameInput, loginEmailIdInput, loginPasswordIdInput);
+    console.log('Login data ready:', data);
+
     signupOrLogin(data);
 }
 
@@ -178,24 +197,35 @@ function validateInput(...inputs) {
 function signupOrLogin(data) {
     window.localStorage.name = data.username;
     window.localStorage.email = data.email;
+
     userLogin(data)
         .then((res) => {
             console.log('[API] - USER LOGIN RESPONSE', res);
+
             if (res.message) {
                 res.success ? popupMessage('success', res.message) : popupMessage('warning', res.message);
+
                 if (res.message.includes('Pending') || res.message.includes('CodeCanyon')) {
                     switchTab('login');
                 }
-            } else {
-                window.sessionStorage.userId = res._id;
-                window.sessionStorage.userToken = res.token;
 
-                document.cookie = `email=${encodeURIComponent(res?.email || '')}; path=/; max-age=604800; SameSite=Lax`;
-                document.cookie = `userId=${encodeURIComponent(res?._id || '')}; path=/; max-age=604800; SameSite=Lax`;
-                document.cookie = `userToken=${encodeURIComponent(res?.token || '')}; path=/; max-age=604800; SameSite=Lax`;
-                window.location.href = `/client/?token=${res.token}`;
-                // Token will be stripped from URL by client.js after reading
+                return;
             }
+
+            if (!res.token || !res._id) {
+                console.error('Login response missing token or user id:', res);
+                popupMessage('error', 'Login failed: token missing from server response');
+                return;
+            }
+
+            document.cookie = `email=${encodeURIComponent(res.email || data.email)}; path=/; max-age=604800; SameSite=Lax`;
+            document.cookie = `userId=${encodeURIComponent(res._id)}; path=/; max-age=604800; SameSite=Lax`;
+            document.cookie = `userToken=${encodeURIComponent(res.token)}; path=/; max-age=604800; SameSite=Lax`;
+
+            window.sessionStorage.userId = res._id;
+            window.sessionStorage.userToken = res.token;
+
+            window.location.href = '/client/';
         })
         .catch((err) => {
             console.error('[API] - USER LOGIN ERROR', err);

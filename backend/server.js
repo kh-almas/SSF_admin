@@ -26,6 +26,7 @@ const sentry = require('./common/sentry');
 const logs = require('./common/logs');
 const path = require('path');
 const packageJson = require('../package.json');
+const cookieParser = require('cookie-parser');
 
 const log = new logs('Server');
 
@@ -72,6 +73,9 @@ mongoose
         app.use(helmet.noSniff()); // Enable content type sniffing prevention
         app.use(cors(corsOptions()));
         app.use(compression());
+
+        app.use(cookieParser());
+
         app.use(express.static(frontendDir));
         app.use(express.urlencoded({ extended: true, limit: '10kb' }));
         app.use(express.json({ limit: '10kb' }));

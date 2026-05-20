@@ -314,10 +314,20 @@ let user = {
 };
 
 $(document).ready(async function () {
-    // Strip token from URL to prevent leakage via browser history/referrer
-    if (window.location.search.includes('token=')) {
-        window.history.replaceState({}, document.title, window.location.pathname);
+    const cookieToken = getCookie('userToken');
+    const cookieUserId = getCookie('userId');
+
+    if (!cookieToken) {
+        window.location.href = '/login';
+        return;
     }
+
+    window.sessionStorage.userToken = cookieToken;
+    window.sessionStorage.userId = cookieUserId;
+
+    userToken = cookieToken;
+    userId = cookieUserId;
+}
 
     // Check if OIDC is enabled and initialize accordingly
     try {
