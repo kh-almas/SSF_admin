@@ -77,18 +77,6 @@ const auth = async (req, res, next) => {
         req?.headers['authorization'] ||
         req?.headers['Authorization'];
 
-    console.log('========== AUTH DEBUG ==========');
-    console.log('URL:', req.originalUrl);
-    console.log('Method:', req.method);
-    console.log('Accept:', req.headers.accept);
-    console.log('Cookie header:', req.headers.cookie);
-    console.log('Parsed cookies:', req.cookies);
-    console.log('Cookie userToken:', req?.cookies?.userToken);
-    console.log('Query token:', req?.query?.token);
-    console.log('Header x-access-token:', req?.headers['x-access-token']);
-    console.log('Authorization:', req?.headers['authorization'] || req?.headers['Authorization']);
-    console.log('================================');
-
     if (!token) {
         if (req.accepts('html')) {
             return res.redirect('/');

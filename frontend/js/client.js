@@ -12,6 +12,16 @@
  * @version 1.3.52
  */
 
+
+function getCookie(name) {
+    return decodeURIComponent(
+        document.cookie
+            .split('; ')
+            .find((row) => row.startsWith(name + '='))
+            ?.split('=')[1] || ''
+    );
+}
+
 const userAgent = navigator.userAgent;
 const parser = new UAParser(userAgent);
 const result = parser.getResult();
@@ -327,7 +337,7 @@ $(document).ready(async function () {
 
     userToken = cookieToken;
     userId = cookieUserId;
-}
+
 
     // Check if OIDC is enabled and initialize accordingly
     try {
@@ -2347,6 +2357,36 @@ function setTippy(elem, content, placement) {
         console.error('setTippy error', err.message);
     }
 }
+
+function clearAuthCookies() {
+    document.cookie = 'email=; path=/; max-age=0; SameSite=Lax';
+    document.cookie = 'userId=; path=/; max-age=0; SameSite=Lax';
+    document.cookie = 'userToken=; path=/; max-age=0; SameSite=Lax';
+}
+
+function logout() {
+    clearAuthCookies();
+
+    console.log('cookie', document.cookie);
+    window.sessionStorage.removeItem('userId');
+    window.sessionStorage.removeItem('userToken');
+
+    window.localStorage.removeItem('email');
+    window.localStorage.removeItem('name');
+
+    window.location.href = '/';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const logoutBtn = document.getElementById('topLogout');
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            logout();
+        });
+    }
+});
 
 // Debounced dashboard stats refresh
 let statsTimeout;
