@@ -511,3 +511,96 @@ button:active {
         min-width: 300px;
     }
 }
+
+
+/* ============================================================
+   LOGO SECTION (centered above the main card)
+   ============================================================ */
+.logo-section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+    /* give some breathing room between logo and the form card */
+}
+
+/* Outer decorative ring (subtle glow) */
+.logo-glow-ring {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: 2px solid rgba(67, 159, 255, 0.25);
+    box-shadow: 0 0 25px rgba(67, 159, 255, 0.15),
+    0 0 50px rgba(67, 159, 255, 0.05);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: ringPulse 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* Logo image wrapper */
+.logo-wrapper {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    background: rgba(32, 33, 35, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5),
+    inset 0 0 20px rgba(67, 159, 255, 0.1);
+    z-index: 2; /* sit above the ring */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.logo-wrapper:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 28px rgba(67, 159, 255, 0.35),
+    0 8px 28px rgba(0, 0, 0, 0.6);
+}
+
+/* The actual image */
+.logo-img {
+    width: 65%;
+    height: auto;
+    filter: drop-shadow(0 0 6px rgba(67, 159, 255, 0.5));
+    transition: filter 0.3s ease;
+}
+
+.logo-wrapper:hover .logo-img {
+    filter: drop-shadow(0 0 12px rgba(67, 159, 255, 0.8));
+}
+
+.logo-section:hover {
+    color: #fff;
+}
+
+/* Pulse animations */
+@keyframes ringPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    50% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
+}
+
+@keyframes dotPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.8); opacity: 1; }
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 480px) {
+    .logo-glow-ring {
+        width: 90px;
+        height: 90px;
+    }
+    .logo-wrapper {
+        width: 75px;
+        height: 75px;
+    }
+}
