@@ -987,5 +987,18 @@
 
             <div id="panelBackdrop" class="panel-backdrop hidden"></div>
         </section>
+
+        <script>
+            // Listen for token requests from SFU iframe
+            window.addEventListener('message', (event) => {
+                if (event.origin !== 'https://localhost:3010') return;
+                if (event.data === 'getToken') {
+                    const cookies = document.cookie.split(';');
+                    const found = cookies.find((c) => c.trim().startsWith('userToken='));
+                    const token = found ? found.trim().split('=').slice(1).join('=') : null;
+                    event.source.postMessage({ token }, 'https://localhost:3010');
+                }
+            });
+        </script>
     </body>
 </html>
