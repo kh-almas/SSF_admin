@@ -77,6 +77,8 @@ const auth = async (req, res, next) => {
         req?.headers['authorization'] ||
         req?.headers['Authorization'];
 
+    console.log('token', token);
+
     if (!token) {
         if (req.accepts('html')) {
             return res.redirect('/');
@@ -94,10 +96,12 @@ const auth = async (req, res, next) => {
 
         const decoded = utils.tokenDecode(token);
 
-        //log.debug('jwt auth decoded', decoded);
+        log.debug('jwt auth decoded', decoded);
         req.user = decoded;
     } catch (err) {
+        console.log('before');
         if (req.accepts('html')) {
+            console.log('before');
             return res.redirect('/');
         }
         return res.status(401).json({ message: 'Token invalid or expired' });

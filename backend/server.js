@@ -132,6 +132,14 @@ mongoose
             app.get('/client', auth, (req, res) => {
                 htmlInjector.injectHtml(client, res);
             });
+
+            // app.get('/check/token', (req, res) => {
+            //     res.status(200).json({ test: 'route works' });
+            // });
+            app.get('/check/token', auth, (req, res) => {
+                console.log('req.user:', req.user); // see what decoded
+                res.status(200).json({ valid: true, user: req.user });
+            });
         }
 
         app.get('/password-forgot', (req, res) => {
