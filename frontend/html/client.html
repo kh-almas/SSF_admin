@@ -449,7 +449,7 @@
                         <div class="addrow-field">
                             <div class="addrow-field-icon"><i class="uil uil-rocket"></i></div>
                             <div class="addrow-field-content">
-                                <span id="rowAppName" class="addrow-field-label">MiroTalk</span>
+                                <span id="rowAppName" class="addrow-field-label" style="display:none;">MiroTalk</span>
                                 <div id="add-type-dropdown" class="custom-dropdown">
                                     <div
                                         class="custom-dropdown-trigger"
@@ -458,31 +458,33 @@
                                         aria-haspopup="listbox"
                                         aria-expanded="false"
                                     >
-                                        <span class="custom-dropdown-value">P2P</span>
+                                        <span class="custom-dropdown-value">SFU</span>
                                         <i class="uil uil-angle-down custom-dropdown-arrow"></i>
                                     </div>
                                     <div class="custom-dropdown-options" role="listbox">
                                         <div
-                                            class="custom-dropdown-option selected"
-                                            data-value="P2P"
-                                            translate="no"
-                                            role="option"
+                                                class="custom-dropdown-option selected"
+                                                data-value="SFU"
+                                                translate="no"
+                                                role="option"
                                         >
-                                            P2P
+                                            SFU
                                         </div>
                                         <div
                                             class="custom-dropdown-option"
-                                            data-value="SFU"
+                                            data-value="P2P"
                                             translate="no"
                                             role="option"
+                                            style="display:none;"
                                         >
-                                            SFU
+                                            P2P
                                         </div>
                                         <div
                                             class="custom-dropdown-option"
                                             data-value="C2C"
                                             translate="no"
                                             role="option"
+                                            style="display:none;"
                                         >
                                             C2C
                                         </div>
@@ -491,11 +493,12 @@
                                             data-value="BRO"
                                             translate="no"
                                             role="option"
+                                            style="display:none;"
                                         >
                                             BRO
                                         </div>
                                     </div>
-                                    <input type="hidden" id="add-type" value="P2P" />
+                                    <input type="hidden" id="add-type" value="SFU" />
                                 </div>
                             </div>
                         </div>
