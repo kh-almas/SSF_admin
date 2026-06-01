@@ -38,7 +38,8 @@ module.exports = {
             Protected: false, // host_protected or user_auth enabled
             Label: 'MiroTalk SFU',
             Home: 'localhost:9000',
-            Room: 'localhost:9000/newroom',
+            Room: 'localhost:9000',
+            // Room: 'localhost:9000/newroom',
             Join: 'localhost:9000/join/',
             GitHub: {
                 Visible: true,

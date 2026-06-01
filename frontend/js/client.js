@@ -328,7 +328,7 @@ $(document).ready(async function () {
     const cookieUserId = getCookie('userId');
 
     if (!cookieToken) {
-        window.location.href = '/login';
+        window.top.location.href = '/login';
         return;
     }
 
@@ -2127,7 +2127,7 @@ function renderDashboardStats(data) {
 }
 
 function openURL(url, blank = false) {
-    blank ? window.open(url, '_blank') : (window.location.href = url);
+    blank ? window.open(url, '_blank') : (window.top.location.href = url);
 }
 
 function getUUID4() {
@@ -2374,7 +2374,7 @@ function logout() {
     window.localStorage.removeItem('email');
     window.localStorage.removeItem('name');
 
-    window.location.href = '/';
+    window.top.location.href = '/';
 }
 
 document.addEventListener('DOMContentLoaded', function () {
