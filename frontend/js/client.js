@@ -410,7 +410,8 @@ function loadConfig(cfg) {
     html = cfg.HTML ? cfg.HTML : html;
     console.log('Config', config);
     const appName = config?.App?.Name || 'MiroTalk';
-    const appLogo = config?.App?.Logo || '../Images/logo.png';
+    // const appLogo = config?.App?.Logo || '../Images/logo.png';
+    const appLogo = '../Images/ssf_wing.png';
     myProfile.setAttribute('href', config.Author.Profile);
     repoP2P.setAttribute('href', config.MiroTalk.P2P.GitHub.Repo);
     starP2P.setAttribute('href', config.MiroTalk.P2P.GitHub.Star);

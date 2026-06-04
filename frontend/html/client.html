@@ -50,11 +50,34 @@
         <nav>
             <div class="logo-name">
                 <div class="logo-image">
-                    <img id="navLogoImage" src="../Images/logo.png" alt="miroslav-pejic" />
+                    <!-- ========== LOGO SECTION ========== -->
+                    <!-- Place this OUTSIDE the .main card, above it.
+                         It sits between <body> and the .main div.
+                         The .logo-section wraps the logo + optional glow ring. -->
+                    <div class="logo-section">
+                        <!-- Outer glow ring (decorative) -->
+                        <div class="logo-glow-ring"></div>
+                        <!-- Inner pulsing dot (decorative accent) -->
+                        <div class="logo-accent-dot"></div>
+                        <!-- The actual logo container -->
+                        <div class="logo-wrapper">
+                            <img id="navLogoImage" src="../Images/ssf_wing.png" alt="SSF Logo" class="logo-img" />
+                        </div>
+                        <!-- Optional brand name below the logo -->
+                        <!--                <span class="logo-brand-name">MiroTalk</span>-->
+                    </div>
+                    <!-- ========== END LOGO SECTION ========== -->
                 </div>
                 <span style="display: none;" id="navLogoLabel" class="logo_name">MiroTalk</span>
-                <span class="logo_name">SSF</span>
             </div>
+
+
+<!--            <div class="logo-name">-->
+<!--                <div class="logo-image">-->
+<!--                    <img id="navLogoImage" src="../Images/logo.png" alt="miroslav-pejic" />-->
+<!--                </div>-->
+<!--                <span style="display: none;" id="navLogoLabel" class="logo_name">MiroTalk</span>-->
+<!--            </div>-->
 
             <div class="menu-items">
                 <ul class="nav-links">
