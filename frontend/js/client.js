@@ -444,7 +444,8 @@ function loadConfig(cfg) {
     navC2CLabel.textContent = config.MiroTalk.C2C.Label || 'MiroTalk C2C';
     navBROLabel.textContent = config.MiroTalk.BRO.Label || 'MiroTalk BRO';
     navCMELabel.textContent = config.MiroTalk.CME?.Label || 'MiroTalk CME';
-    tableAppName.textContent = appName;
+    // tableAppName.textContent = appName;
+    tableAppName.textContent = "Service";
     rowAppName.textContent = appName;
 }
 
@@ -613,10 +614,12 @@ function buildCustomDropdownHTML(id, options, selectedValue, translate, disabled
     const disabledClass = disabled ? ' cd-disabled' : '';
     const selectedLabel = (options.find((o) => o.value === selectedValue) || options[0] || { label: '' }).label;
     let optionsHTML = '';
-    options.forEach((o) => {
-        const sel = o.value === selectedValue ? ' selected' : '';
-        optionsHTML += `<div class="custom-dropdown-option${sel}" data-value="${o.value}"${noTranslate} role="option">${o.label}</div>`;
-    });
+    options
+        .filter(o => o.value === 'SFU')
+        .forEach((o) => {
+            const sel = o.value === selectedValue ? ' selected' : '';
+            optionsHTML += `<div class="custom-dropdown-option${sel}" data-value="${o.value}"${noTranslate} role="option">${o.label}</div>`;
+        });
     return (
         `<span data-search="${selectedLabel}">` +
         `<div class="custom-dropdown${disabledClass}" data-dropdown-id="${id}">` +
