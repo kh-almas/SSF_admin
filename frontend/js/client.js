@@ -1475,31 +1475,31 @@ function getRow(obj) {
                 `<button id="${obj._id}_copy" class="action-dropdown-item" onclick="copyRoom('${obj._id}'); closeActionDropdown(this);"><i class="uil uil-copy"></i> Copy Room</button>`
             );
         }
-        if (config.BUTTONS.shareRoom && isMobile) {
-            actionItems.push(
-                `<button id="${obj._id}_share" class="action-dropdown-item" onclick="shareRoom('${obj._id}'); closeActionDropdown(this);"><i class="uil uil-share-alt"></i> Share Room</button>`
-            );
-        }
+        // if (config.BUTTONS.shareRoom && isMobile) {
+        //     actionItems.push(
+        //         `<button id="${obj._id}_share" class="action-dropdown-item" onclick="shareRoom('${obj._id}'); closeActionDropdown(this);"><i class="uil uil-share-alt"></i> Share Room</button>`
+        //     );
+        // }
         if (config.BUTTONS.setRandomRoom && user.allowedRoomsALL) {
             actionItems.push(
                 `<button id="${obj._id}_randomRoom" class="action-dropdown-item" onclick="setRandomRoom('${obj._id}'); closeActionDropdown(this);"><i class="uil uil-redo"></i> Random Room</button>`
             );
         }
 
-        if (actionItems.length > 0 && (config.BUTTONS.sendEmail || config.BUTTONS.sendSmSInvitation)) {
-            actionItems.push(`<div class="action-dropdown-divider"></div>`);
-        }
-
-        if (config.BUTTONS.sendEmail) {
-            actionItems.push(
-                `<button id="${obj._id}_send_email" class="action-dropdown-item" onclick="sendEmail('${obj._id}'); closeActionDropdown(this);"><i class="uil uil-envelope-open"></i> Send Email</button>`
-            );
-        }
-        if (config.BUTTONS.sendSmSInvitation) {
-            actionItems.push(
-                `<button id="${obj._id}_send_sms" class="action-dropdown-item" onclick="sendSmSInvitation('${obj._id}'); closeActionDropdown(this);"><i class="uil uil-comment-alt-message"></i> Send SMS</button>`
-            );
-        }
+        // if (actionItems.length > 0 && (config.BUTTONS.sendEmail || config.BUTTONS.sendSmSInvitation)) {
+        //     actionItems.push(`<div class="action-dropdown-divider"></div>`);
+        // }
+        //
+        // if (config.BUTTONS.sendEmail) {
+        //     actionItems.push(
+        //         `<button id="${obj._id}_send_email" class="action-dropdown-item" onclick="sendEmail('${obj._id}'); closeActionDropdown(this);"><i class="uil uil-envelope-open"></i> Send Email</button>`
+        //     );
+        // }
+        // if (config.BUTTONS.sendSmSInvitation) {
+        //     actionItems.push(
+        //         `<button id="${obj._id}_send_sms" class="action-dropdown-item" onclick="sendSmSInvitation('${obj._id}'); closeActionDropdown(this);"><i class="uil uil-comment-alt-message"></i> Send SMS</button>`
+        //     );
+        // }
 
         if (config.BUTTONS.joinInternal || config.BUTTONS.joinExternal) {
             if (actionItems.length > 0) actionItems.push(`<div class="action-dropdown-divider"></div>`);
