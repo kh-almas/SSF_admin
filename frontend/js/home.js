@@ -206,9 +206,9 @@ function signupOrLogin(data) {
                 return;
             }
 
-            document.cookie = `email=${encodeURIComponent(res.email || data.email)}; path=/; max-age=604800; SameSite=Lax`;
-            document.cookie = `userId=${encodeURIComponent(res._id)}; path=/; max-age=604800; SameSite=Lax`;
-            document.cookie = `userToken=${encodeURIComponent(res.token)}; path=/; max-age=604800; SameSite=Lax`;
+            document.cookie = `email=${encodeURIComponent(res.email || data.email)}; path=/; max-age=604800; SameSite=Lax; domain=.ssf.gov.bd`;
+            document.cookie = `userId=${encodeURIComponent(res._id)}; path=/; max-age=604800; SameSite=Lax; domain=.ssf.gov.bd`;
+            document.cookie = `userToken=${encodeURIComponent(res.token)}; path=/; max-age=604800; SameSite=Lax; domain=.ssf.gov.bd`;
 
             window.sessionStorage.userId = res._id;
             window.sessionStorage.userToken = res.token;
