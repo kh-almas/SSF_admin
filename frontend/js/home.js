@@ -143,18 +143,6 @@ function handleSignup(e) {
     <h3>4. Account Security</h3>
     <p>You are responsible for maintaining the confidentiality of your account and password. You agree to notify us immediately of any unauthorized use of your account or any other security breach.</p>
 
-    <h3>5. Service Availability</h3>
-    <p>We strive to maintain the availability of the Room Scheduler, but cannot guarantee continuous or uninterrupted access. We may temporarily suspend the service for maintenance, upgrades, or technical issues.</p>
-
-    <h3>6. Modifications to the Terms</h3>
-    <p>We may update or modify these Terms and Conditions at any time. Any changes will be posted on this page, and it is your responsibility to review the Terms regularly. Continued use of the service constitutes acceptance of any modifications.</p>
-
-    <h3>7. Limitation of Liability</h3>
-    <p>We are not liable for any damages arising from the use or inability to use the Room Scheduler, including but not limited to direct, indirect, incidental, or consequential damages.</p>
-
-    <h3>8. Termination</h3>
-    <p>We reserve the right to suspend or terminate your access to the service at any time, for any reason, including violation of these Terms and Conditions.</p>
-
     <p><strong>Do you agree to these Terms & Conditions?</strong></p>
 </div>
         `,
