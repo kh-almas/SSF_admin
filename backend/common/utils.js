@@ -23,31 +23,27 @@ const pathTraversal = new RegExp(/(\.\.(\/|\\))+/);
 const alphanumeric = new RegExp(/^[A-Za-z0-9-_]+$/);
 const miroTalkType = new RegExp(/^(SFU|P2P|C2C|BRO)$/);
 
-async function isAdmin(email, username, password) {
-    if (email === ADMIN_EMAIL && username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+async function isAdmin(username, password) {
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
         return true;
     }
-    const user = await User.findOne({ email, username }).select('role').lean();
+    const user = await User.findOne({ username }).select('role').lean();
     return user?.role === 'admin';
 }
 
 function tokenEncode(token) {
     if (!token) return '';
 
-    const { username = 'username', email = 'email', password = 'password' } = token;
+    const { username = 'username', password = 'password' } = token;
 
-    // Constructing payload
     const payload = {
         username: String(username),
-        email: String(email),
         password: String(password),
     };
 
-    // Encrypt payload using AES encryption
     const payloadString = JSON.stringify(payload);
     const encryptedPayload = CryptoJS.AES.encrypt(payloadString, JWT_KEY).toString();
 
-    // Constructing JWT token
     const jwtToken = jwt.sign({ data: encryptedPayload }, JWT_KEY, { expiresIn: JWT_EXP });
 
     return jwtToken;

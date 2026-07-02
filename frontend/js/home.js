@@ -4,18 +4,15 @@ console.log('Location', window.location);
 
 // storage
 const storageUsername = window.localStorage.name || '';
-const storageEmail = window.localStorage.email || '';
 
 // signup
 const signupUsernameInput = document.getElementById('signupUsernameInput');
-const signupEmailIdInput = document.getElementById('signupEmailIdInput');
 const signupPasswordIdInput = document.getElementById('signupPasswordIdInput');
 const signupRepeatPasswordIdInput = document.getElementById('signupRepeatPasswordIdInput');
 const signupBtn = document.getElementById('signupBtn');
 
 // login
 const loginUsernameInput = document.getElementById('loginUsernameInput');
-const loginEmailIdInput = document.getElementById('loginEmailIdInput');
 const loginPasswordIdInput = document.getElementById('loginPasswordIdInput');
 const loginBtn = document.getElementById('loginBtn');
 
@@ -35,12 +32,10 @@ const config = {
 !config.support && elementDisplay(supportBtn, false);
 
 signupUsernameInput.value = storageUsername;
-signupEmailIdInput.value = storageEmail;
 signupPasswordIdInput.value = '';
 signupRepeatPasswordIdInput.value = '';
 
 loginUsernameInput.value = storageUsername;
-loginEmailIdInput.value = storageEmail;
 loginPasswordIdInput.value = '';
 
 // Tab switching
@@ -65,7 +60,7 @@ function switchTab(tab) {
 
 loginBtn.addEventListener('click', handleLogin);
 
-[loginUsernameInput, loginEmailIdInput, loginPasswordIdInput].forEach((input) => {
+[loginUsernameInput, loginPasswordIdInput].forEach((input) => {
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') handleLogin(e);
     });
@@ -73,7 +68,7 @@ loginBtn.addEventListener('click', handleLogin);
 
 signupBtn.addEventListener('click', handleSignup);
 
-[signupUsernameInput, signupEmailIdInput, signupPasswordIdInput, signupRepeatPasswordIdInput].forEach((input) => {
+[signupUsernameInput, signupPasswordIdInput, signupRepeatPasswordIdInput].forEach((input) => {
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') handleSignup(e);
     });
@@ -101,15 +96,14 @@ function handleLogin(e) {
 
     cleanSignUpInput();
 
-    const validationError = validateInput(loginUsernameInput, loginEmailIdInput, loginPasswordIdInput);
+    const validationError = validateInput(loginUsernameInput, loginPasswordIdInput);
     if (validationError) {
         console.warn('Validation error:', validationError);
         popupMessage('warning', validationError);
         return false;
     }
 
-    const data = gatherInputData(loginUsernameInput, loginEmailIdInput, loginPasswordIdInput);
-    console.log('Login data ready:', data);
+    const data = gatherInputData(loginUsernameInput, loginPasswordIdInput);
 
     signupOrLogin(data);
 }
@@ -117,12 +111,7 @@ function handleLogin(e) {
 function handleSignup(e) {
     e.preventDefault();
     cleanLoginInput();
-    const validationError = validateInput(
-        signupUsernameInput,
-        signupEmailIdInput,
-        signupPasswordIdInput,
-        signupRepeatPasswordIdInput
-    );
+    const validationError = validateInput(signupUsernameInput, signupPasswordIdInput, signupRepeatPasswordIdInput);
     if (validationError) {
         popupMessage('warning', validationError);
         return false;
@@ -156,16 +145,15 @@ function handleSignup(e) {
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
-            const data = gatherInputData(signupUsernameInput, signupEmailIdInput, signupPasswordIdInput);
+            const data = gatherInputData(signupUsernameInput, signupPasswordIdInput);
             signupOrLogin(data);
         }
     });
 }
 
-function gatherInputData(usernameInput, emailInput, passwordInput) {
+function gatherInputData(usernameInput, passwordInput) {
     return {
         username: usernameInput.value.trim(),
-        email: emailInput.value.toLowerCase().trim(),
         password: passwordInput.value.trim(),
     };
 }
@@ -184,7 +172,6 @@ function validateInput(...inputs) {
 
 function signupOrLogin(data) {
     window.localStorage.name = data.username;
-    window.localStorage.email = data.email;
 
     userLogin(data)
         .then((res) => {
@@ -206,9 +193,12 @@ function signupOrLogin(data) {
                 return;
             }
 
-            document.cookie = `email=${encodeURIComponent(res.email || data.email)}; path=/; max-age=604800; SameSite=Lax; domain=.ssf.gov.bd`;
-            document.cookie = `userId=${encodeURIComponent(res._id)}; path=/; max-age=604800; SameSite=Lax; domain=.ssf.gov.bd`;
-            document.cookie = `userToken=${encodeURIComponent(res.token)}; path=/; max-age=604800; SameSite=Lax; domain=.ssf.gov.bd`;
+            document.cookie = `userId=${encodeURIComponent(res._id)}; path=/; max-age=604800; SameSite=Lax`;
+            document.cookie = `userToken=${encodeURIComponent(res.token)}; path=/; max-age=604800; SameSite=Lax`;
+
+//             for live
+//             document.cookie = `userId=${encodeURIComponent(res._id)}; path=/; max-age=604800; SameSite=Lax; domain=.ssf.gov.bd`;
+//             document.cookie = `userToken=${encodeURIComponent(res.token)}; path=/; max-age=604800; SameSite=Lax; domain=.ssf.gov.bd`;
 
             window.sessionStorage.userId = res._id;
             window.sessionStorage.userToken = res.token;
@@ -228,13 +218,11 @@ function elementDisplay(elem, display) {
 
 function cleanLoginInput() {
     loginUsernameInput.value = '';
-    loginEmailIdInput.value = '';
     loginPasswordIdInput.value = '';
 }
 
 function cleanSignUpInput() {
     signupUsernameInput.value = '';
-    signupEmailIdInput.value = '';
     signupPasswordIdInput.value = '';
     signupRepeatPasswordIdInput.value = '';
 }
