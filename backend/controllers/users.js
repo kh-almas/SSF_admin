@@ -20,41 +20,27 @@ const USER_DEMO = {
 
 async function userCreate(req, res) {
     try {
-        const { email, username, password } = req.body;
-        const userFindOne = await User.findOne({ email: email, username: username });
+        const { username, password } = req.body;
+        const userFindOne = await User.findOne({ username: username });
         log.debug('No user found in the storage');
         if (Object.is(userFindOne, null) || Object.keys(userFindOne).length === 0) {
-            const payload = { username: username, email: email, password: password };
+            const payload = { username: username, password: password };
             const token = utils.tokenEncode(payload);
 
-            if (nodemailer.EMAIL_VERIFICATION) {
-                log.debug('New user, send email confirmation');
-                const confirmationCode = `?token=${token}`;
-                nodemailer.sendConfirmationEmail(username, email, confirmationCode);
-                log.debug('New user, sent email confirmation');
-                return res.status(201).send({
-                    message: '⚠️ Pending account. <br/> Please verify your email to confirm then Log in!',
-                });
-            } else {
-                log.debug('New user, no email verification needed, going to add it the storage');
-                const isUserAdmin = await utils.isAdmin(email, username, password);
-                const encryptedPassword = await bcrypt.hash(password, 10);
-                const userData = new User({
-                    email: email,
-                    username: username,
-                    password: encryptedPassword,
-                    role: isUserAdmin ? 'admin' : 'guest',
-                    token: token,
-                    active: true,
-                    createdAt: new Date().toISOString(),
-                });
-                const userSaveData = await userData.save();
-                log.debug('User create OK', userSaveData);
-                res.status(201).json(userSaveData);
-            }
-        } else {
-            log.debug('User already exist');
-            res.status(409).json({ message: 'User already exist!' });
+            log.debug('New user, no email verification needed, going to add it the storage');
+            const isUserAdmin = await utils.isAdmin(username, password);
+            const encryptedPassword = await bcrypt.hash(password, 10);
+            const userData = new User({
+                username: username,
+                password: encryptedPassword,
+                role: isUserAdmin ? 'admin' : 'guest',
+                token: token,
+                active: true,
+                createdAt: new Date().toISOString(),
+            });
+            const userSaveData = await userData.save();
+            log.debug('User create OK', userSaveData);
+            res.status(201).json(userSaveData);
         }
     } catch (error) {
         log.error('User', error);
@@ -64,22 +50,19 @@ async function userCreate(req, res) {
 
 async function userLogin(req, res) {
     try {
-        const { email, username, password } = req.body;
+        const { username, password } = req.body;
         const dateNow = new Date().toISOString();
 
         const isUserDemo =
             USER_DEMO.enabled &&
-            email === USER_DEMO.email &&
             username === USER_DEMO.username &&
             password === USER_DEMO.password;
 
-        const payload = { username: username, email: email, password: password };
+        const payload = { username: username, password: password };
         const token = utils.tokenEncode(payload);
 
         //const userFindOne = await User.findOne({ email: email });
-        const userFindOne = await User.findOne({
-            $or: [{ email: email }, { username: username }],
-        });
+        const userFindOne = await User.findOne({ username: username });
 
         if (!Object.is(userFindOne, null) && userFindOne.active) {
             log.debug('User found, but we going to check if the provided password exists');
@@ -93,11 +76,11 @@ async function userLogin(req, res) {
                     if (userFindOne.username !== username) {
                         log.debug('User found, wrong username!');
                         return res.status(201).send({
-                            message: '⚠️ Invalid credentials. <br/> Please check your email, username and password.',
+                            message: '⚠️ Invalid credentials. <br/> Please check your username and password.',
                         });
                     }
                     log.debug('User found, just refresh the token');
-                    if ((await utils.isAdmin(email, username, password)) && userFindOne.role !== 'admin') {
+                    if ((await utils.isAdmin(username, password)) && userFindOne.role !== 'admin') {
                         userFindOne.role = 'admin';
                     }
                     userFindOne.token = token;
@@ -140,7 +123,6 @@ async function userLogin(req, res) {
                 const isUserAdmin = await utils.isAdmin(email, username, password);
                 const encryptedPassword = await bcrypt.hash(password, 10);
                 const userData = new User({
-                    email: email,
                     username: username,
                     password: encryptedPassword,
                     role: isUserAdmin ? 'admin' : 'guest',

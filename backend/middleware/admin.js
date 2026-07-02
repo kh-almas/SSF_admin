@@ -63,7 +63,7 @@ const admin = async (req, res, next) => {
 
         const decoded = utils.tokenDecode(token);
 
-        if (await utils.isAdmin(decoded.email, decoded.username, decoded.password)) {
+        if (await utils.isAdmin(decoded.username, decoded.password)) {
             req.user = decoded;
             return next();
         }
