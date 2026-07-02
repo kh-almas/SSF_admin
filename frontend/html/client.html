@@ -93,7 +93,7 @@
                             <span class="link-name">Overview</span>
                         </a>
                     </li>
-                    <li style="display: none;">
+                    <li>
                         <a id="navUsers" href="javascript:void(0)">
                             <i class="uil uil-users-alt"></i>
                             <span class="link-name">Users</span>
@@ -951,7 +951,7 @@
                             autoplay;
                             picture-in-picture;
                         "
-                        src="https://localhost:3010"
+                        src="https://talk.ssf.gov.bd"
                     ></iframe>
                 </div>
 
@@ -1017,12 +1017,12 @@
         <script>
             // Listen for token requests from SFU iframe
             window.addEventListener('message', (event) => {
-                if (event.origin !== 'https://localhost:3010') return;
+                if (event.origin !== 'https://talk.ssf.gov.bd') return;
                 if (event.data === 'getToken') {
                     const cookies = document.cookie.split(';');
                     const found = cookies.find((c) => c.trim().startsWith('userToken='));
                     const token = found ? found.trim().split('=').slice(1).join('=') : null;
-                    event.source.postMessage({ token }, 'https://localhost:3010');
+                    event.source.postMessage({ token }, 'https://talk.ssf.gov.bd');
                 }
             });
         </script>

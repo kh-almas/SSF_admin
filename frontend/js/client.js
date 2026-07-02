@@ -328,7 +328,7 @@ $(document).ready(async function () {
     const cookieUserId = getCookie('userId');
 
     if (!cookieToken) {
-        window.top.location.href = '/login';
+        window.top.location.href = '/';
         return;
     }
 
