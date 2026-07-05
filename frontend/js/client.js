@@ -252,32 +252,32 @@ const usersDataTable = $('#usersTable').DataTable({
     info: false,
     responsive: true,
     scrollX: true,
-    order: [[6, 'desc']],
+    autoWidth: false,
+    order: [[5, 'desc']],
     columnDefs: [
-        { width: '12%', targets: 0 },
-        { width: '16%', targets: 1 },
-        { width: '10%', targets: 2 },
-        { width: '10%', targets: 3 },
-        { width: '20%', targets: 4 },
-        { width: '8%', targets: 5 },
-        { width: '12%', targets: 6 },
-        { width: '12%', targets: 7 },
+        { width: '14%', targets: 0 }, // Username
+        { width: '18%', targets: 1 }, // Email
+        { width: '10%', targets: 2 }, // Role
+        { width: '22%', targets: 3 }, // Rooms
+        { width: '10%', targets: 4 }, // Active
+        { width: '12%', targets: 5 }, // Created
+        { width: '14%', targets: 6 }, // Actions
         {
-            targets: [2, 3],
+            targets: [2],
             render: dropdownSearchRender,
         },
         {
-            targets: [0, 1, 2, 3, 4, 6],
+            targets: [0, 1, 2, 3, 5],
             type: 'string',
             searchable: true,
         },
         {
-            targets: [5, 7],
+            targets: [4, 6],
             orderable: false,
             searchable: false,
         },
         {
-            targets: [0, 1, 2, 3, 4, 5, 6, 7],
+            targets: [0, 1, 2, 3, 4, 5, 6],
             className: 'dt-body-justify',
         },
     ],
@@ -1075,19 +1075,14 @@ function getUserRow(u) {
     const isSelf = u._id === userId;
     const activeChecked = u.active ? 'checked' : '';
     const selfDisabled = isSelf ? 'disabled' : '';
-    const userAllow = Array.isArray(u.allow) ? u.allow : ['ALL'];
     const roomsStr = Array.isArray(u.allowedRooms) ? u.allowedRooms.join(', ') : '*';
     const createdDate = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '-';
     const createdISO = u.createdAt ? new Date(u.createdAt).toISOString().split('T')[0] : '';
-
-    const services = ['ALL', 'P2P', 'SFU', 'C2C', 'BRO'];
 
     const roleOptions = [
         { value: 'admin', label: 'admin' },
         { value: 'guest', label: 'guest' },
     ];
-    const allowDropdownOptions = services.map((s) => ({ value: s, label: s }));
-    const selectedAllow = userAllow[0] || 'ALL';
 
     const userInlineIcons = [];
     userInlineIcons.push(
@@ -1105,7 +1100,6 @@ function getUserRow(u) {
         `<input id="uname_${u._id}" type="text" value="${escapeHtml(u.username)}" readonly />`,
         `<input id="uemail_${u._id}" type="email" value="${escapeHtml(u.email)}" readonly />`,
         buildCustomDropdownHTML('urole_' + u._id, roleOptions, u.role, true, isSelf),
-        buildCustomDropdownHTML('uallow_' + u._id, allowDropdownOptions, selectedAllow),
         `<input id="urooms_${u._id}" type="text" value="${escapeHtml(roomsStr)}" />`,
         `<label class="user-active-badge ${u.active ? 'active' : 'inactive'}">
             <input id="uactive_${u._id}" type="checkbox" ${activeChecked} ${selfDisabled} onchange="this.parentElement.className='user-active-badge '+(this.checked?'active':'inactive');this.parentElement.querySelector('span').textContent=this.checked?'Active':'Inactive'" />
@@ -1130,13 +1124,12 @@ function saveUser(id) {
     const roomsRaw = document.getElementById(`urooms_${id}`).value.trim();
     const active = document.getElementById(`uactive_${id}`).checked;
 
-    const allow = [document.getElementById(`uallow_${id}`).value];
     const allowedRooms = roomsRaw
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
 
-    const data = { role, allow, allowedRooms, active };
+    const data = { role, allowedRooms, active };
 
     function doSave() {
         const saveBtn = document.getElementById(`usave_${id}`);
