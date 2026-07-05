@@ -9,7 +9,7 @@ const router = express.Router();
 const controllersRooms = require('../controllers/rooms');
 
 //CREATE: /api/v1/room
-router.post('/room', auth, validator, (req, res) => {
+router.post('/room', admin, validator, (req, res) => {
     controllersRooms.roomCreate(req, res);
 });
 

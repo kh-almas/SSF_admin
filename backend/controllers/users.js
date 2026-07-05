@@ -190,15 +190,20 @@ async function userIsAuth(req, res) {
         });
 
         if (Object.is(userFindOne, null) || !userFindOne.active) {
-            log.debug('user not found!', email);
-            return res.status(201).json({ message: false });
+            return res.status(201).json({
+                message: false,
+                isAdmin: false,
+            });
         }
 
         bcrypt
             .compare(password, userFindOne.password)
             .then((isPasswordValid) => {
                 log.debug('bcrypt compare isPasswordValid', isPasswordValid);
-                return res.status(201).json({ message: isPasswordValid });
+                return res.status(201).json({
+                    message: isPasswordValid,
+                    isAdmin: userFindOne.role === 'admin',
+                });
             })
             .catch((error) => {
                 log.error('bcrypt compare error', error);
@@ -480,6 +485,37 @@ async function sendInvitation(req, res) {
     }
 }
 
+async function userIsAdmin(req, res) {
+    try {
+        log.debug('userIsAdmin query', req.body);
+
+        const { username, password } = req.body;
+
+        const userFindOne = await User.findOne({ username: username });
+
+        if (!userFindOne || !userFindOne.active) {
+            return res.status(201).json({ message: false });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, userFindOne.password);
+
+        if (!isPasswordValid) {
+            return res.status(201).json({ message: false });
+        }
+
+        const isAdmin = await utils.isAdmin(username, password);
+
+        log.debug('isAdmin', isAdmin);
+
+        return res.status(201).json({
+            message: isAdmin,
+        });
+    } catch (error) {
+        log.error('userIsAdmin', error);
+        return res.status(400).json({ message: error.message });
+    }
+}
+
 module.exports = {
     userCreate,
     userAdminCreate,
@@ -495,4 +531,5 @@ module.exports = {
     userDelete,
     userDeleteALL,
     sendInvitation,
+    userIsAdmin,
 };

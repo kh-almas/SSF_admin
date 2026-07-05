@@ -7,6 +7,16 @@ const log = new logs('Controllers-room');
 
 async function roomCreate(req, res) {
     try {
+        if (!req.user || !req.user.username) {
+            return res.status(401).json({ message: 'Authentication required' });
+        }
+
+        const currentUser = await User.findOne({ username: req.user.username }).select('role').lean();
+
+        if (!currentUser || currentUser.role !== 'admin') {
+            return res.status(403).json({ message: 'Only admin can create rooms' });
+        }
+
         const { userId, type, tag, email, phone, date, time, room } = req.body;
         const data = new Room({
             userId: userId,
@@ -18,11 +28,12 @@ async function roomCreate(req, res) {
             time: time,
             room: room,
         });
+
         const dataToSave = await data.save();
-        res.status(200).json(dataToSave);
+        return res.status(200).json(dataToSave);
     } catch (error) {
         log.error('Room create error', error);
-        res.status(400).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 }
 

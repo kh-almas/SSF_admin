@@ -80,4 +80,9 @@ router.post('/user/invite', admin, (req, res) => {
     controllersUsers.sendInvitation(req, res);
 });
 
+//POST: /api/v1/user/isAdmin
+router.post('/user/isAdmin', api, (req, res) => {
+    controllersUsers.userIsAdmin(req, res);
+});
+
 module.exports = router;
