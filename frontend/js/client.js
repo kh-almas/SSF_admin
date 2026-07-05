@@ -253,29 +253,30 @@ const usersDataTable = $('#usersTable').DataTable({
     responsive: true,
     scrollX: false,
     autoWidth: false,
-    order: [[3, 'desc']],
+    order: [[4, 'desc']],
     columnDefs: [
-        { width: '24%', targets: 0 }, // Username
-        { width: '18%', targets: 1 }, // Role
-        { width: '18%', targets: 2 }, // Active
-        { width: '20%', targets: 3 }, // Created
-        { width: '20%', targets: 4 }, // Actions
+        { width: '22%', targets: 0 }, // Username
+        { width: '16%', targets: 1 }, // Role
+        { width: '20%', targets: 2 }, // Password
+        { width: '14%', targets: 3 }, // Active
+        { width: '14%', targets: 4 }, // Created
+        { width: '14%', targets: 5 }, // Actions
         {
             targets: [1],
             render: dropdownSearchRender,
         },
         {
-            targets: [0, 1, 3],
+            targets: [0, 1, 4],
             type: 'string',
             searchable: true,
         },
         {
-            targets: [2, 4],
+            targets: [2, 3, 5],
             orderable: false,
             searchable: false,
         },
         {
-            targets: [0, 1, 2, 3, 4],
+            targets: [0, 1, 2, 3, 4, 5],
             className: 'dt-body-justify',
         },
     ],
@@ -1097,6 +1098,7 @@ function getUserRow(u) {
     return [
         `<input id="uname_${u._id}" type="text" value="${escapeHtml(u.username)}" readonly />`,
         buildCustomDropdownHTML('urole_' + u._id, roleOptions, u.role, true, isSelf),
+        `<input id="upassword_${u._id}" type="password" placeholder="New password" autocomplete="new-password" />`,
         `<label class="user-active-badge ${u.active ? 'active' : 'inactive'}">
             <input id="uactive_${u._id}" type="checkbox" ${activeChecked} ${selfDisabled} onchange="this.parentElement.className='user-active-badge '+(this.checked?'active':'inactive');this.parentElement.querySelector('span').textContent=this.checked?'Active':'Inactive'" />
             <span>${u.active ? 'Active' : 'Inactive'}</span>
@@ -1118,8 +1120,18 @@ function initUsersToolTips(users) {
 function saveUser(id) {
     const role = document.getElementById(`urole_${id}`).value;
     const active = document.getElementById(`uactive_${id}`).checked;
+    const password = document.getElementById(`upassword_${id}`).value.trim();
 
     const data = { role, active };
+
+    if (password) {
+        if (password.length < 6) {
+            popupMessage('warning', 'Password must be at least 6 characters');
+            return;
+        }
+
+        data.password = password;
+    }
 
     function doSave() {
         const saveBtn = document.getElementById(`usave_${id}`);
