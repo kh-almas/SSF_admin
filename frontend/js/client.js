@@ -251,33 +251,31 @@ const usersDataTable = $('#usersTable').DataTable({
     pagingType: 'simple_numbers',
     info: false,
     responsive: true,
-    scrollX: true,
+    scrollX: false,
     autoWidth: false,
-    order: [[5, 'desc']],
+    order: [[3, 'desc']],
     columnDefs: [
-        { width: '14%', targets: 0 }, // Username
-        { width: '18%', targets: 1 }, // Email
-        { width: '10%', targets: 2 }, // Role
-        { width: '22%', targets: 3 }, // Rooms
-        { width: '10%', targets: 4 }, // Active
-        { width: '12%', targets: 5 }, // Created
-        { width: '14%', targets: 6 }, // Actions
+        { width: '24%', targets: 0 }, // Username
+        { width: '18%', targets: 1 }, // Role
+        { width: '18%', targets: 2 }, // Active
+        { width: '20%', targets: 3 }, // Created
+        { width: '20%', targets: 4 }, // Actions
         {
-            targets: [2],
+            targets: [1],
             render: dropdownSearchRender,
         },
         {
-            targets: [0, 1, 2, 3, 5],
+            targets: [0, 1, 3],
             type: 'string',
             searchable: true,
         },
         {
-            targets: [4, 6],
+            targets: [2, 4],
             orderable: false,
             searchable: false,
         },
         {
-            targets: [0, 1, 2, 3, 4, 5, 6],
+            targets: [0, 1, 2, 3, 4],
             className: 'dt-body-justify',
         },
     ],
@@ -1098,9 +1096,7 @@ function getUserRow(u) {
 
     return [
         `<input id="uname_${u._id}" type="text" value="${escapeHtml(u.username)}" readonly />`,
-        `<input id="uemail_${u._id}" type="email" value="${escapeHtml(u.email)}" readonly />`,
         buildCustomDropdownHTML('urole_' + u._id, roleOptions, u.role, true, isSelf),
-        `<input id="urooms_${u._id}" type="text" value="${escapeHtml(roomsStr)}" />`,
         `<label class="user-active-badge ${u.active ? 'active' : 'inactive'}">
             <input id="uactive_${u._id}" type="checkbox" ${activeChecked} ${selfDisabled} onchange="this.parentElement.className='user-active-badge '+(this.checked?'active':'inactive');this.parentElement.querySelector('span').textContent=this.checked?'Active':'Inactive'" />
             <span>${u.active ? 'Active' : 'Inactive'}</span>
@@ -1121,15 +1117,9 @@ function initUsersToolTips(users) {
 
 function saveUser(id) {
     const role = document.getElementById(`urole_${id}`).value;
-    const roomsRaw = document.getElementById(`urooms_${id}`).value.trim();
     const active = document.getElementById(`uactive_${id}`).checked;
 
-    const allowedRooms = roomsRaw
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-
-    const data = { role, allowedRooms, active };
+    const data = { role, active };
 
     function doSave() {
         const saveBtn = document.getElementById(`usave_${id}`);
