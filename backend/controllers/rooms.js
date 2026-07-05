@@ -1,6 +1,7 @@
 'use strict';
 
 const Room = require('../models/room');
+const User = require('../models/users');
 const logs = require('../common/logs');
 
 const log = new logs('Controllers-room');
