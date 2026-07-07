@@ -448,7 +448,7 @@ async function userAdminCreate(req, res) {
     try {
         const {username, password } = req.body;
         if (!username || !password) {
-            return res.status(400).json({ message: 'Email, username, and password are required' });
+            return res.status(400).json({ message: 'Username, and password are required' });
         }
         const userFindOne = await User.findOne({username: username });
         if (!Object.is(userFindOne, null) && Object.keys(userFindOne).length > 0) {

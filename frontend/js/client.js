@@ -193,7 +193,6 @@ const closeAddUserBtn = document.getElementById('add-user-close-btn');
 const addUserUsername = document.getElementById('add-user-username');
 const addUserPassword = document.getElementById('add-user-password');
 const addUserGeneratePassword = document.getElementById('add-user-generate-password');
-const addUserRooms = document.getElementById('add-user-rooms');
 const addUserBtn = document.getElementById('add-user-btn');
 const refreshUsersBtn = document.getElementById('refresh-users-btn');
 
@@ -892,28 +891,6 @@ document.getElementById('usersSearchInput').addEventListener('keyup', function (
     usersDataTable.search(this.value).draw();
 });
 
-const svcAllCheckbox = document.getElementById('add-user-svc-all');
-const svcIndividual = ['add-user-svc-p2p', 'add-user-svc-sfu', 'add-user-svc-c2c', 'add-user-svc-bro'].map((id) =>
-    document.getElementById(id)
-);
-
-svcAllCheckbox.addEventListener('change', () => {
-    if (svcAllCheckbox.checked) {
-        svcIndividual.forEach((cb) => (cb.checked = false));
-    }
-});
-
-svcIndividual.forEach((cb) => {
-    cb.addEventListener('change', () => {
-        if (cb.checked) {
-            svcAllCheckbox.checked = false;
-        }
-        if (!svcIndividual.some((c) => c.checked)) {
-            svcAllCheckbox.checked = true;
-        }
-    });
-});
-
 function navShow(elements = [], activeNav = null) {
     elemDisplay(dsOverview, false);
     elemDisplay(dsRooms, false);
@@ -1006,12 +983,6 @@ panelBackdrop.addEventListener('click', () => {
 function resetAddUserForm() {
     addUserUsername.value = '';
     addUserPassword.value = '';
-    addUserRooms.value = '*';
-    document.getElementById('add-user-svc-all').checked = true;
-    document.getElementById('add-user-svc-p2p').checked = false;
-    document.getElementById('add-user-svc-sfu').checked = false;
-    document.getElementById('add-user-svc-c2c').checked = false;
-    document.getElementById('add-user-svc-bro').checked = false;
     [addUserUsername, addUserPassword].forEach((el) => {
         el.style.borderColor = '';
         el.style.boxShadow = '';
@@ -1085,7 +1056,6 @@ function getUserRow(u) {
     const isSelf = u._id === userId;
     const activeChecked = u.active ? 'checked' : '';
     const selfDisabled = isSelf ? 'disabled' : '';
-    const roomsStr = Array.isArray(u.allowedRooms) ? u.allowedRooms.join(', ') : '*';
     const createdDate = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '-';
     const createdISO = u.createdAt ? new Date(u.createdAt).toISOString().split('T')[0] : '';
 
@@ -1234,7 +1204,6 @@ function deleteUser(id) {
 function createUser() {
     const username = addUserUsername.value.trim();
     const password = addUserPassword.value;
-    const roomsRaw = addUserRooms.value.trim();
 
     if (!username || !password) {
         [addUserUsername, addUserPassword].forEach((el) => {
@@ -1246,20 +1215,8 @@ function createUser() {
         return;
     }
 
-    const allow = [];
-    if (document.getElementById('add-user-svc-all').checked) allow.push('ALL');
-    if (document.getElementById('add-user-svc-p2p').checked) allow.push('P2P');
-    if (document.getElementById('add-user-svc-sfu').checked) allow.push('SFU');
-    if (document.getElementById('add-user-svc-c2c').checked) allow.push('C2C');
-    if (document.getElementById('add-user-svc-bro').checked) allow.push('BRO');
-    if (allow.length === 0) allow.push('ALL');
-
-    const allowedRooms = roomsRaw
-        ? roomsRaw
-              .split(',')
-              .map((s) => s.trim())
-              .filter(Boolean)
-        : ['*'];
+    const allow = ['SFU'];
+    const allowedRooms = ['*'];
 
     const data = { username, password };
 
