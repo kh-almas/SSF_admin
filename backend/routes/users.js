@@ -12,7 +12,8 @@ const controllersUsers = require('../controllers/users');
 
 //CREATE: /api/v1/user
 router.post('/user', registrationLimiter, validator, (req, res) => {
-    controllersUsers.userCreate(req, res);
+    return res.status(403).json({ message: 'Registration disabled' });
+    // controllersUsers.userCreate(req, res);
 });
 
 //LOGIN: /api/v1/user/login

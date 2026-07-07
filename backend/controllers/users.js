@@ -65,21 +65,18 @@ async function userLogin(req, res) {
         const userFindOne = await User.findOne({ username: username });
 
         if (!Object.is(userFindOne, null) && userFindOne.active) {
-            log.debug('User found, but we going to check if the provided password exists');
             bcrypt.compare(password, userFindOne.password, async function (err, result) {
                 if (err) {
                     log.error('login password check', err);
                     return res.status(400).json({ message: err });
                 }
                 if (result) {
-                    log.debug('User found, but we going to check if the provided username is correct');
                     if (userFindOne.username !== username) {
                         log.debug('User found, wrong username!');
                         return res.status(201).send({
                             message: '⚠️ Invalid credentials. <br/> Please check your username and password.',
                         });
                     }
-                    log.debug('User found, just refresh the token');
                     if ((await utils.isAdmin(username, password)) && userFindOne.role !== 'admin') {
                         userFindOne.role = 'admin';
                     }
@@ -89,7 +86,6 @@ async function userLogin(req, res) {
                     log.debug('User login OK', saveUserFindOne);
                     res.status(201).json(saveUserFindOne);
                 } else {
-                    log.debug('User found, wrong password!');
                     return res.status(201).send({
                         message: '⚠️ Invalid credentials. <br/> Please check your email, username and password.',
                     });
