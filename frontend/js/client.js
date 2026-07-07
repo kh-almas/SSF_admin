@@ -22,6 +22,19 @@ function getCookie(name) {
     );
 }
 
+function toggleUserPassword(id, btn) {
+    const input = document.getElementById(`upassword_${id}`);
+    const icon = btn.querySelector('i');
+
+    if (!input || !icon) return;
+
+    const isHidden = input.type === 'password';
+
+    input.type = isHidden ? 'text' : 'password';
+    icon.className = isHidden ? 'uil uil-eye-slash' : 'uil uil-eye';
+    btn.title = isHidden ? 'Hide password' : 'Show password';
+}
+
 const userAgent = navigator.userAgent;
 const parser = new UAParser(userAgent);
 const result = parser.getResult();
@@ -1098,7 +1111,12 @@ function getUserRow(u) {
     return [
         `<input id="uname_${u._id}" type="text" value="${escapeHtml(u.username)}" readonly />`,
         buildCustomDropdownHTML('urole_' + u._id, roleOptions, u.role, true, isSelf),
-        `<input id="upassword_${u._id}" type="password" placeholder="New password" autocomplete="new-password" />`,
+        `<div style="display:flex;align-items:center;gap:6px;">
+            <input id="upassword_${u._id}" type="password" placeholder="New password" autocomplete="new-password" style="width:100%;" />
+            <button type="button" onclick="toggleUserPassword('${u._id}', this)" title="Show password" style="border:none;background:transparent;cursor:pointer;font-size:18px;padding:0;">
+                <i class="uil uil-eye"></i>
+            </button>
+        </div>`,
         `<label class="user-active-badge ${u.active ? 'active' : 'inactive'}">
             <input id="uactive_${u._id}" type="checkbox" ${activeChecked} ${selfDisabled} onchange="this.parentElement.className='user-active-badge '+(this.checked?'active':'inactive');this.parentElement.querySelector('span').textContent=this.checked?'Active':'Inactive'" />
             <span>${u.active ? 'Active' : 'Inactive'}</span>
