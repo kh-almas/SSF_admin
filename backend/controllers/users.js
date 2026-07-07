@@ -446,21 +446,20 @@ async function userGetMe(req, res) {
 
 async function userAdminCreate(req, res) {
     try {
-        const { email, username, password } = req.body;
-        if (!email || !username || !password) {
+        const {username, password } = req.body;
+        if (!username || !password) {
             return res.status(400).json({ message: 'Email, username, and password are required' });
         }
-        const userFindOne = await User.findOne({ email: email, username: username });
+        const userFindOne = await User.findOne({username: username });
         if (!Object.is(userFindOne, null) && Object.keys(userFindOne).length > 0) {
             return res.status(409).json({ message: 'User already exist!' });
         }
         log.debug('Admin creating user directly (skip email verification)');
-        const isUserAdmin = await utils.isAdmin(email, username, password);
+        const isUserAdmin = await utils.isAdmin(username, password);
         const encryptedPassword = await bcrypt.hash(password, 10);
-        const payload = { username, email, password };
+        const payload = { username, password };
         const token = utils.tokenEncode(payload);
         const userData = new User({
-            email: email,
             username: username,
             password: encryptedPassword,
             role: isUserAdmin ? 'admin' : 'guest',

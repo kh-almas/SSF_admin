@@ -191,7 +191,6 @@ const addUserDiv = document.getElementById('addUserDiv');
 const openAddUserBtn = document.getElementById('open-add-user-btn');
 const closeAddUserBtn = document.getElementById('add-user-close-btn');
 const addUserUsername = document.getElementById('add-user-username');
-const addUserEmail = document.getElementById('add-user-email');
 const addUserPassword = document.getElementById('add-user-password');
 const addUserGeneratePassword = document.getElementById('add-user-generate-password');
 const addUserRooms = document.getElementById('add-user-rooms');
@@ -1006,7 +1005,6 @@ panelBackdrop.addEventListener('click', () => {
 
 function resetAddUserForm() {
     addUserUsername.value = '';
-    addUserEmail.value = '';
     addUserPassword.value = '';
     addUserRooms.value = '*';
     document.getElementById('add-user-svc-all').checked = true;
@@ -1014,7 +1012,7 @@ function resetAddUserForm() {
     document.getElementById('add-user-svc-sfu').checked = false;
     document.getElementById('add-user-svc-c2c').checked = false;
     document.getElementById('add-user-svc-bro').checked = false;
-    [addUserUsername, addUserEmail, addUserPassword].forEach((el) => {
+    [addUserUsername, addUserPassword].forEach((el) => {
         el.style.borderColor = '';
         el.style.boxShadow = '';
     });
@@ -1235,17 +1233,16 @@ function deleteUser(id) {
 
 function createUser() {
     const username = addUserUsername.value.trim();
-    const email = addUserEmail.value.trim().toLowerCase();
     const password = addUserPassword.value;
     const roomsRaw = addUserRooms.value.trim();
 
-    if (!username || !email || !password) {
-        [addUserUsername, addUserEmail, addUserPassword].forEach((el) => {
+    if (!username || !password) {
+        [addUserUsername, addUserPassword].forEach((el) => {
             const isEmpty = !el.value.trim();
             el.style.borderColor = isEmpty ? 'var(--danger-color)' : '';
             el.style.boxShadow = isEmpty ? '0 0 0 2px var(--danger-bg-light)' : '';
         });
-        popupMessage('warning', 'Username, email, and password are required');
+        popupMessage('warning', 'Username, and password are required');
         return;
     }
 
@@ -1264,7 +1261,7 @@ function createUser() {
               .filter(Boolean)
         : ['*'];
 
-    const data = { username, email, password };
+    const data = { username, password };
 
     btnLoading(addUserBtn, 'Creating...');
 
@@ -1280,7 +1277,7 @@ function createUser() {
                         toggleAddUserPanel();
                         loadUsers();
                         loadDashboardStats();
-                        promptSendInvitation(username, email, password);
+                        // promptSendInvitation(username, email, password);
                     })
                     .catch((err) => {
                         console.error('[API] - USER UPDATE AFTER CREATE ERROR', err);
@@ -2231,7 +2228,7 @@ function resetFormValues() {
         el.style.boxShadow = '';
     });
 });
-[addUserUsername, addUserEmail, addUserPassword].forEach((el) => {
+[addUserUsername, addUserPassword].forEach((el) => {
     el.addEventListener('input', () => {
         el.style.borderColor = '';
         el.style.boxShadow = '';
