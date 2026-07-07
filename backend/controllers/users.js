@@ -359,9 +359,14 @@ async function userUpdate(req, res) {
             delete updatedData.active;
             delete updatedData.allow;
             delete updatedData.allowedRooms;
+            delete updatedData.password;
         }
 
         if (updatedData.password) {
+            if (updatedData.password.length < 6) {
+                return res.status(400).json({ message: 'Password must be at least 6 characters' });
+            }
+
             const encryptedPassword = await bcrypt.hash(updatedData.password, 10);
             const isUserAdmin = await utils.isAdmin(updatedData.email, updatedData.username, updatedData.password);
             updatedData.role = isUserAdmin ? 'admin' : 'guest';
@@ -369,7 +374,9 @@ async function userUpdate(req, res) {
         }
         updatedData.updatedAt = dateNow;
         log.debug('Going to update user data');
-        const result = await User.findByIdAndUpdate(id, updatedData, options);
+        const result = await User.findByIdAndUpdate(id, { $set: updatedData }, options).select(
+            '-password -resetPasswordToken -resetPasswordExpires'
+        );
         return res.send(result);
     } catch (error) {
         log.error('updateUser', error);
