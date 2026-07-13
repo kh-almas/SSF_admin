@@ -472,194 +472,67 @@ function handleTokens(cfg) {
     //...
 }
 
-// function handleUserRoles() {
-//     const userPromise = isOidcMode ? userGetMe() : userGet(userId);
-//     userPromise
-//         .then((res) => {
-//             console.log('[API] - USER ROLES GET RESPONSE', res);
-//             if (res.message) {
-//                 popupMessage('warning', `${res.message}`);
-//             } else {
-//                 const { role, allow, allowedRooms } = res;
-//                 user.allowedRooms = allowedRooms;
-//                 user.allowedRoomsALL = allowedRooms.includes('*');
-//                 elemDisplay(addRoom, user.allowedRoomsALL);
-//                 elemDisplay(genRoom, user.allowedRoomsALL);
-//                 elemDisplay(selRoomDropdown, !user.allowedRoomsALL);
-//                 if (!user.allowedRoomsALL) {
-//                     const optionsContainer = selRoomDropdown.querySelector('.custom-dropdown-options');
-//                     optionsContainer.innerHTML = '';
-//                     user.allowedRooms.forEach((room, i) => {
-//                         const div = document.createElement('div');
-//                         div.className = 'custom-dropdown-option' + (i === 0 ? ' selected' : '');
-//                         div.dataset.value = room;
-//                         div.textContent = room;
-//                         optionsContainer.appendChild(div);
-//                     });
-//                     if (user.allowedRooms.length > 0) {
-//                         selRoom.value = user.allowedRooms[0];
-//                         selRoomDropdown.querySelector('.custom-dropdown-value').textContent = user.allowedRooms[0];
-//                     }
-//                     selRoomDropdown.classList.remove('cd-ready');
-//                     initCustomDropdowns(selRoomDropdown.parentElement);
-//                 }
-//                 if (role == 'admin') {
-//                     elemDisplay(navUsers, true);
-//                     elemDisplay(navP2P, true);
-//                     elemDisplay(navSFU, true);
-//                     elemDisplay(navC2C, true);
-//                     elemDisplay(navBRO, true);
-//
-//                     config.MiroTalk.P2P.Visible = true;
-//                     config.MiroTalk.SFU.Visible = true;
-//                     config.MiroTalk.C2C.Visible = true;
-//                     config.MiroTalk.BRO.Visible = true;
-//                 } else {
-//                     const allowP2P = config.MiroTalk.P2P.Visible && (allow.includes('P2P') || allow.includes('ALL'));
-//                     const allowSFU = config.MiroTalk.SFU.Visible && (allow.includes('SFU') || allow.includes('ALL'));
-//                     const allowC2C = config.MiroTalk.C2C.Visible && (allow.includes('C2C') || allow.includes('ALL'));
-//                     const allowBRO = config.MiroTalk.BRO.Visible && (allow.includes('BRO') || allow.includes('ALL'));
-//
-//                     elemDisplay(navP2P, allowP2P);
-//                     elemDisplay(navSFU, allowSFU);
-//                     elemDisplay(navC2C, allowC2C);
-//                     elemDisplay(navBRO, allowBRO);
-//                 }
-//             }
-//             toggleElements();
-//             hideElements();
-//             showDataTable();
-//         })
-//         .catch((err) => {
-//             console.error('[API] - USER ROLES GET ERROR', err);
-//             popupMessage('error', `USER ROLES GET error: ${err.message}`);
-//         });
-// }
-
 function handleUserRoles() {
-    // Use the authenticated JWT for both standard login and OIDC.
-    // Do not trust the userId cookie to identify the current user.
-    userGetMe()
+    const userPromise = isOidcMode ? userGetMe() : userGet(userId);
+    userPromise
         .then((res) => {
-            console.log('[API] - CURRENT USER RESPONSE', res);
-
-            if (!res || res.message) {
-                popupMessage(
-                    'warning',
-                    res?.message || 'Unable to find the authenticated user'
-                );
-                return;
-            }
-
-            // Synchronize the correct user ID returned by the backend.
-            if (res._id) {
-                userId = String(res._id);
-                window.sessionStorage.userId = userId;
-
-                const secure =
-                    window.location.protocol === 'https:' ? '; Secure' : '';
-
-                document.cookie =
-                    `userId=${encodeURIComponent(userId)}; ` +
-                    `path=/; SameSite=Lax${secure}`;
-            }
-
-            const role = res.role || 'guest';
-            const allow = Array.isArray(res.allow) ? res.allow : [];
-            const allowedRooms = Array.isArray(res.allowedRooms)
-                ? res.allowedRooms
-                : [];
-
-            user.allowedRooms = allowedRooms;
-            user.allowedRoomsALL = allowedRooms.includes('*');
-
-            // The Users button is visible only for a database admin.
-            elemDisplay(navUsers, role === 'admin');
-
-            elemDisplay(addRoom, user.allowedRoomsALL);
-            elemDisplay(genRoom, user.allowedRoomsALL);
-            elemDisplay(selRoomDropdown, !user.allowedRoomsALL);
-
-            if (!user.allowedRoomsALL) {
-                const optionsContainer = selRoomDropdown.querySelector(
-                    '.custom-dropdown-options'
-                );
-
-                optionsContainer.innerHTML = '';
-
-                user.allowedRooms.forEach((room, index) => {
-                    const option = document.createElement('div');
-
-                    option.className =
-                        'custom-dropdown-option' +
-                        (index === 0 ? ' selected' : '');
-
-                    option.dataset.value = room;
-                    option.textContent = room;
-
-                    optionsContainer.appendChild(option);
-                });
-
-                if (user.allowedRooms.length > 0) {
-                    selRoom.value = user.allowedRooms[0];
-
-                    selRoomDropdown.querySelector(
-                        '.custom-dropdown-value'
-                    ).textContent = user.allowedRooms[0];
-                }
-
-                selRoomDropdown.classList.remove('cd-ready');
-                initCustomDropdowns(selRoomDropdown.parentElement);
-            }
-
-            if (role === 'admin') {
-                elemDisplay(navP2P, true);
-                elemDisplay(navSFU, true);
-                elemDisplay(navC2C, true);
-                elemDisplay(navBRO, true);
-
-                config.MiroTalk.P2P.Visible = true;
-                config.MiroTalk.SFU.Visible = true;
-                config.MiroTalk.C2C.Visible = true;
-                config.MiroTalk.BRO.Visible = true;
+            console.log('[API] - USER ROLES GET RESPONSE', res);
+            if (res.message) {
+                popupMessage('warning', `${res.message}`);
             } else {
-                const allowP2P =
-                    config.MiroTalk.P2P.Visible &&
-                    (allow.includes('P2P') || allow.includes('ALL'));
+                const { role, allow, allowedRooms } = res;
+                user.allowedRooms = allowedRooms;
+                user.allowedRoomsALL = allowedRooms.includes('*');
+                elemDisplay(addRoom, user.allowedRoomsALL);
+                elemDisplay(genRoom, user.allowedRoomsALL);
+                elemDisplay(selRoomDropdown, !user.allowedRoomsALL);
+                if (!user.allowedRoomsALL) {
+                    const optionsContainer = selRoomDropdown.querySelector('.custom-dropdown-options');
+                    optionsContainer.innerHTML = '';
+                    user.allowedRooms.forEach((room, i) => {
+                        const div = document.createElement('div');
+                        div.className = 'custom-dropdown-option' + (i === 0 ? ' selected' : '');
+                        div.dataset.value = room;
+                        div.textContent = room;
+                        optionsContainer.appendChild(div);
+                    });
+                    if (user.allowedRooms.length > 0) {
+                        selRoom.value = user.allowedRooms[0];
+                        selRoomDropdown.querySelector('.custom-dropdown-value').textContent = user.allowedRooms[0];
+                    }
+                    selRoomDropdown.classList.remove('cd-ready');
+                    initCustomDropdowns(selRoomDropdown.parentElement);
+                }
+                if (role == 'admin') {
+                    elemDisplay(navUsers, true);
+                    elemDisplay(navP2P, true);
+                    elemDisplay(navSFU, true);
+                    elemDisplay(navC2C, true);
+                    elemDisplay(navBRO, true);
 
-                const allowSFU =
-                    config.MiroTalk.SFU.Visible &&
-                    (allow.includes('SFU') || allow.includes('ALL'));
+                    config.MiroTalk.P2P.Visible = true;
+                    config.MiroTalk.SFU.Visible = true;
+                    config.MiroTalk.C2C.Visible = true;
+                    config.MiroTalk.BRO.Visible = true;
+                } else {
+                    const allowP2P = config.MiroTalk.P2P.Visible && (allow.includes('P2P') || allow.includes('ALL'));
+                    const allowSFU = config.MiroTalk.SFU.Visible && (allow.includes('SFU') || allow.includes('ALL'));
+                    const allowC2C = config.MiroTalk.C2C.Visible && (allow.includes('C2C') || allow.includes('ALL'));
+                    const allowBRO = config.MiroTalk.BRO.Visible && (allow.includes('BRO') || allow.includes('ALL'));
 
-                const allowC2C =
-                    config.MiroTalk.C2C.Visible &&
-                    (allow.includes('C2C') || allow.includes('ALL'));
-
-                const allowBRO =
-                    config.MiroTalk.BRO.Visible &&
-                    (allow.includes('BRO') || allow.includes('ALL'));
-
-                elemDisplay(navP2P, allowP2P);
-                elemDisplay(navSFU, allowSFU);
-                elemDisplay(navC2C, allowC2C);
-                elemDisplay(navBRO, allowBRO);
+                    elemDisplay(navP2P, allowP2P);
+                    elemDisplay(navSFU, allowSFU);
+                    elemDisplay(navC2C, allowC2C);
+                    elemDisplay(navBRO, allowBRO);
+                }
             }
-
             toggleElements();
             hideElements();
-
-            // userId is now synchronized with the authenticated user.
             showDataTable();
         })
-        .catch((error) => {
-            console.error('[API] - CURRENT USER ERROR', error);
-
-            const message =
-                error.response?.data?.message ||
-                error.message ||
-                'Unable to load authenticated user';
-
-            popupMessage('error', `Current user error: ${message}`);
+        .catch((err) => {
+            console.error('[API] - USER ROLES GET ERROR', err);
+            popupMessage('error', `USER ROLES GET error: ${err.message}`);
         });
 }
 

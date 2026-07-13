@@ -422,67 +422,21 @@ async function userDeleteALL(req, res) {
     }
 }
 
-// async function userGetMe(req, res) {
-//     try {
-//         const { email, username } = req.user;
-//         const userFindOne = await User.findOne({
-//             $or: [{ email: email }, { username: username }],
-//         }).select('-password -resetPasswordToken -resetPasswordExpires');
-//
-//         if (!userFindOne) {
-//             return res.status(404).json({ message: 'User not found' });
-//         }
-//
-//         res.json(userFindOne);
-//     } catch (error) {
-//         log.error('userGetMe', error);
-//         res.status(400).json({ message: error.message });
-//     }
-// }
-
 async function userGetMe(req, res) {
     try {
-        const username = req.user?.username;
-        const email = req.user?.email;
+        const { email, username } = req.user;
+        const userFindOne = await User.findOne({
+            $or: [{ email: email }, { username: username }],
+        }).select('-password -resetPasswordToken -resetPasswordExpires');
 
-        const conditions = [];
-
-        if (username) {
-            conditions.push({ username });
+        if (!userFindOne) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        if (email) {
-            conditions.push({ email });
-        }
-
-        if (conditions.length === 0) {
-            return res.status(401).json({
-                message: 'Authenticated user identity not found',
-            });
-        }
-
-        const query =
-            conditions.length === 1
-                ? conditions[0]
-                : { $or: conditions };
-
-        const user = await User.findOne(query).select(
-            '-password -token -resetPasswordToken -resetPasswordExpires'
-        );
-
-        if (!user) {
-            return res.status(404).json({
-                message: 'Authenticated user not found in database',
-            });
-        }
-
-        return res.json(user);
+        res.json(userFindOne);
     } catch (error) {
         log.error('userGetMe', error);
-
-        return res.status(400).json({
-            message: error.message,
-        });
+        res.status(400).json({ message: error.message });
     }
 }
 
