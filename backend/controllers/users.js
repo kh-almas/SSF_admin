@@ -176,8 +176,6 @@ async function userLogin(req, res) {
 
 async function userIsAuth(req, res) {
     try {
-        log.debug('userIsAuth query', req.body);
-
         const { email, username, password } = req.body;
 
         // Check by email (uuid) or username as indexed
@@ -495,27 +493,22 @@ async function userIsAdmin(req, res) {
 
         const userFindOne = await User.findOne({ username: username });
 
-        log.debug('userFindOne', userFindOne);
         if (!userFindOne || !userFindOne.active) {
             return res.status(201).json({ message: false });
         }
 
         const isPasswordValid = await bcrypt.compare(password, userFindOne.password);
 
-        log.debug('isPasswordValid', isPasswordValid);
         if (!isPasswordValid) {
             return res.status(201).json({ message: false });
         }
 
         const isAdmin = await utils.isAdmin(username, password);
 
-        log.debug('isAdmin', isAdmin);
-
         return res.status(201).json({
             message: isAdmin,
         });
     } catch (error) {
-        log.error('userIsAdmin', error);
         return res.status(400).json({ message: error.message });
     }
 }
