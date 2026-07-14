@@ -495,12 +495,14 @@ async function userIsAdmin(req, res) {
 
         const userFindOne = await User.findOne({ username: username });
 
+        log.debug('userFindOne', userFindOne);
         if (!userFindOne || !userFindOne.active) {
             return res.status(201).json({ message: false });
         }
 
         const isPasswordValid = await bcrypt.compare(password, userFindOne.password);
 
+        log.debug('isPasswordValid', isPasswordValid);
         if (!isPasswordValid) {
             return res.status(201).json({ message: false });
         }
