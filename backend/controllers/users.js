@@ -341,7 +341,7 @@ async function userUpdate(req, res) {
         const options = { returnDocument: 'after' };
         const dateNow = new Date().toISOString();
 
-        const isAdmin = await utils.isAdmin(req.user.email, req.user.username, req.user.password);
+        const isAdmin = await utils.isAdmin(req.user.username, req.user.password);
 
         if (!isAdmin) {
             const targetUser = await User.findById(id).select('email').lean();
@@ -362,8 +362,6 @@ async function userUpdate(req, res) {
             }
 
             const encryptedPassword = await bcrypt.hash(updatedData.password, 10);
-            const isUserAdmin = await utils.isAdmin(updatedData.email, updatedData.username, updatedData.password);
-            updatedData.role = isUserAdmin ? 'admin' : 'guest';
             updatedData.password = encryptedPassword;
         }
         updatedData.updatedAt = dateNow;
@@ -382,7 +380,7 @@ async function userDelete(req, res) {
     try {
         const id = req.params.id;
 
-        const isAdmin = await utils.isAdmin(req.user.email, req.user.username, req.user.password);
+        const isAdmin = await utils.isAdmin(req.user.username, req.user.password);
 
         if (!isAdmin) {
             const targetUser = await User.findById(id).select('email').lean();

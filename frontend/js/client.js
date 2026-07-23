@@ -625,7 +625,7 @@ function buildCustomDropdownHTML(id, options, selectedValue, translate, disabled
     const selectedLabel = (options.find((o) => o.value === selectedValue) || options[0] || { label: '' }).label;
     let optionsHTML = '';
     options
-        .filter(o => o.value === 'SFU')
+        // .filter(o => o.value === 'SFU')
         .forEach((o) => {
             const sel = o.value === selectedValue ? ' selected' : '';
             optionsHTML += `<div class="custom-dropdown-option${sel}" data-value="${o.value}"${noTranslate} role="option">${o.label}</div>`;
