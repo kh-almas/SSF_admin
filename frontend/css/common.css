@@ -45,3 +45,47 @@
 .back-login i {
     font-size: 12px;
 }
+
+
+#usersTable.dataTable thead th.sorting,
+#usersTable.dataTable thead th.sorting_asc,
+#usersTable.dataTable thead th.sorting_desc {
+    position: relative !important;
+    padding-right: 28px !important;
+    cursor: pointer;
+}
+
+#usersTable.dataTable thead th.sorting::before,
+#usersTable.dataTable thead th.sorting_asc::before,
+#usersTable.dataTable thead th.sorting_desc::before {
+    display: none !important;
+}
+
+#usersTable.dataTable thead th.sorting::after,
+#usersTable.dataTable thead th.sorting_asc::after,
+#usersTable.dataTable thead th.sorting_desc::after {
+    position: absolute !important;
+    right: 8px !important;
+    top: 50% !important;
+    bottom: auto !important;
+    transform: translateY(-50%);
+    display: block !important;
+    color: currentColor !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+}
+
+#usersTable.dataTable thead th.sorting::after {
+    content: "↕" !important;
+    opacity: 0.5 !important;
+}
+
+#usersTable.dataTable thead th.sorting_asc::after {
+    content: "↑" !important;
+    opacity: 1 !important;
+}
+
+#usersTable.dataTable thead th.sorting_desc::after {
+    content: "↓" !important;
+    opacity: 1 !important;
+}
