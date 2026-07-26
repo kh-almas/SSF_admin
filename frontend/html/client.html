@@ -28,6 +28,72 @@
         <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 
+        <style>
+            /* Prevent dashboard fields from flashing before role/config loading */
+            body.app-loading > nav,
+            body.app-loading > section.dashboard {
+                visibility: hidden !important;
+                opacity: 0 !important;
+            }
+
+            body.app-ready > nav,
+            body.app-ready > section.dashboard {
+                visibility: visible;
+                opacity: 1;
+                transition: opacity 0.2s ease;
+            }
+
+            #appLoader {
+                position: fixed;
+                inset: 0;
+                z-index: 999999;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 16px;
+                background: var(--panel-color, #f5f7fb);
+                color: var(--text-color, #222);
+                transition:
+                    opacity 0.2s ease,
+                    visibility 0.2s ease;
+            }
+
+            body.app-ready #appLoader {
+                visibility: hidden;
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .app-loader-spinner {
+                width: 46px;
+                height: 46px;
+                border: 4px solid rgba(100, 100, 100, 0.2);
+                border-top-color: var(--accent-color, #3366ff);
+                border-radius: 50%;
+                animation: appLoaderSpin 0.8s linear infinite;
+            }
+
+            .app-loader-text {
+                margin: 0;
+                font-size: 14px;
+                font-weight: 600;
+                letter-spacing: 0.2px;
+            }
+
+            @keyframes appLoaderSpin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .app-loader-spinner {
+                    animation-duration: 1.5s;
+                }
+            }
+        </style>
+
         <script defer src="https://code.jquery.com/jquery-3.6.2.js"></script>
         <script defer src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
         <script defer src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
@@ -46,7 +112,18 @@
         <script defer src="../js/translate.js"></script>
     </head>
 
-    <body>
+    <body class="app-loading">
+        <div
+            id="appLoader"
+            role="status"
+            aria-live="polite"
+            aria-label="Loading dashboard"
+        >
+            <div class="app-loader-spinner"></div>
+            <p id="appLoaderText" class="app-loader-text">
+                Loading dashboard...
+            </p>
+        </div>
         <nav>
             <div class="logo-name">
                 <div class="logo-image">
@@ -111,7 +188,7 @@
                             <span id="navP2PLabel" class="link-name">MiroTalk P2P</span>
                         </a>
                     </li>
-                    <li>
+                    <li style="display: none;">
                         <a id="navSFU" href="javascript:void(0)">
                             <i class="uil uil-trophy"></i>
                             <span id="navSFULabel" class="link-name">Meeting SFU</span>

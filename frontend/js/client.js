@@ -44,6 +44,43 @@ const isMobile = deviceType === 'mobile';
 console.log('INFO', result);
 
 const body = document.querySelector('body');
+let appLoadingFinished = false;
+
+function finishAppLoading() {
+    if (appLoadingFinished) {
+        return;
+    }
+
+    appLoadingFinished = true;
+
+    document.body.classList.remove('app-loading');
+    document.body.classList.add('app-ready');
+
+    const loader = document.getElementById('appLoader');
+
+    if (loader) {
+        setTimeout(() => {
+            loader.remove();
+        }, 300);
+    }
+
+    console.log('[APP LOADER] Dashboard ready');
+}
+
+function showAppLoadingError(message) {
+    const loaderText = document.getElementById(
+        'appLoaderText'
+    );
+
+    if (loaderText) {
+        loaderText.textContent =
+            message || 'Unable to load dashboard';
+    }
+
+    console.error('[APP LOADER] Dashboard loading failed', {
+        message,
+    });
+}
 const modeToggle = body.querySelector('.mode-toggle');
 const topModeToggle = document.getElementById('topModeToggle');
 const sidebar = body.querySelector('nav');
@@ -589,9 +626,11 @@ function handleUserRoles() {
             toggleElements();
             hideElements();
             showDataTable();
+            // All role-based show/hide operations are now complete.
+            finishAppLoading();
         })
         .catch((err) => {
-            console.error('[API] - USER ROLES GET ERROR', err);
+            showAppLoadingError('Unable to load dashboard. Please refresh the page.');
             popupMessage('error', `USER ROLES GET error: ${err.message}`);
         });
 }
