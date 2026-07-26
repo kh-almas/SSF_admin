@@ -48,4 +48,20 @@ router.delete('/room/deleteAll', admin, (req, res) => {
     controllersRooms.roomDeleteALL(req, res);
 });
 
+//CREATE ROOM LOG: /api/v1/room-log
+//Called by the MiroTalk SFU server.js
+router.post('/room-log', api, (req, res) => {
+    controllersRooms.roomLogCreate(req, res);
+});
+
+// GET ALL ROOM LOGS - admin dashboard
+router.get('/room-logs', admin, (req, res) => {
+    controllersRooms.roomLogFindAll(req, res);
+});
+
+// DELETE ONE ROOM LOG - admin dashboard
+router.delete('/room-log/:id', admin, (req, res) => {
+    controllersRooms.roomLogDelete(req, res);
+});
+
 module.exports = router;

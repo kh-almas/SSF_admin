@@ -294,3 +294,21 @@ function getOidcStatus() {
         url: `/oidc/status`,
     }).then((response) => response.data);
 }
+
+// API ROOM LOGS
+
+function roomLogFindAll() {
+    return axios({
+        method: 'GET',
+        url: `${apiPath}/room-logs`,
+        headers: authHeaders(),
+    }).then((response) => response.data);
+}
+
+function roomLogDeleteById(id) {
+    return axios({
+        method: 'DELETE',
+        url: `${apiPath}/room-log/${encodeURIComponent(id)}`,
+        headers: authHeaders(),
+    }).then((response) => response.data);
+}

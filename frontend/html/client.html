@@ -99,6 +99,12 @@
                             <span class="link-name">Users</span>
                         </a>
                     </li>
+                    <li>
+                        <a id="navRoomLogs" href="javascript:void(0)">
+                            <i class="uil uil-history"></i>
+                            <span class="link-name">Room Logs</span>
+                        </a>
+                    </li>
                     <li style="display: none;">
                         <a id="navP2P" href="javascript:void(0)">
                             <i class="uil uil-rocket"></i>
@@ -720,6 +726,50 @@
                         <i class="uil uil-user-plus"></i> Create User
                     </button>
                 </form>
+
+                <div id="dsRoomLogs" class="dsRoomLogs">
+                    <div class="title">
+                        <div id="roomLogsBtnDiv">
+                            <div class="rooms-search-box">
+                                <i class="uil uil-search"></i>
+                                <input
+                                    id="roomLogsSearchInput"
+                                    type="text"
+                                    placeholder="Search room logs..."
+                                />
+                            </div>
+
+                            <div class="rooms-btn-group">
+                                <button
+                                    id="refresh-room-logs-btn"
+                                    class="custom-button custom-button-icon"
+                                    aria-label="Refresh room logs"
+                                >
+                                    <i class="uil uil-sync"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="roomLogsEmptyState" class="empty-state">
+                        <i class="uil uil-history"></i>
+                        <h3>No room logs found</h3>
+                        <p>Room logs will appear after an SFU room is created.</p>
+                    </div>
+
+                    <table id="roomLogsTable">
+                        <thead>
+                            <tr>
+                                <th>Room Name</th>
+                                <th>Created By</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roomLogsTableBody"></tbody>
+                    </table>
+                </div>
 
                 <div id="accountDiv" class="accountDiv hidden">
                     <div class="account-header">

@@ -3,6 +3,7 @@
 const Room = require('../models/room');
 const User = require('../models/users');
 const logs = require('../common/logs');
+const RoomLog = require('../models/roomLog');
 
 const log = new logs('Controllers-room');
 
@@ -129,8 +130,183 @@ async function roomDeleteALL(req, res) {
     }
 }
 
+async function roomLogCreate(req, res) {
+    try {
+        const {
+            room_name,
+            created_by,
+            date,
+            time,
+        } = req.body;
+
+        log.debug('[ROOM LOG API 1] Request received', {
+            room_name,
+            created_by,
+            date,
+            time,
+        });
+
+        const mandatoryFields = {
+            room_name,
+            created_by,
+            date,
+            time,
+        };
+
+        const missingFields = Object.entries(mandatoryFields)
+            .filter(([, value]) => {
+                return (
+                    typeof value !== 'string' ||
+                    value.trim() === ''
+                );
+            })
+            .map(([field]) => field);
+
+        if (missingFields.length > 0) {
+            log.debug('[ROOM LOG API] Mandatory fields missing', {
+                missingFields,
+            });
+
+            return res.status(422).json({
+                message: 'Mandatory room-log fields are missing',
+                fields: missingFields,
+            });
+        }
+
+        const cleanRoomName = room_name.trim();
+        const cleanCreatedBy = created_by.trim();
+        const cleanDate = date.trim();
+        const cleanTime = time.trim();
+
+        const validDate =
+            /^\d{4}-\d{2}-\d{2}$/.test(cleanDate);
+
+        if (!validDate) {
+            return res.status(422).json({
+                message: 'Date must use YYYY-MM-DD format',
+                field: 'date',
+            });
+        }
+
+        const validTime =
+            /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(
+                cleanTime
+            );
+
+        if (!validTime) {
+            return res.status(422).json({
+                message: 'Time must use HH:MM:SS format',
+                field: 'time',
+            });
+        }
+
+        log.debug('[ROOM LOG API 2] Saving room log', {
+            room_name: cleanRoomName,
+            created_by: cleanCreatedBy,
+            date: cleanDate,
+            time: cleanTime,
+        });
+
+        const roomLog = new RoomLog({
+            room_name: cleanRoomName,
+            created_by: cleanCreatedBy,
+            date: cleanDate,
+            time: cleanTime,
+        });
+
+        const savedRoomLog = await roomLog.save();
+
+        log.debug('[ROOM LOG API 3] Room log saved', {
+            id: savedRoomLog._id,
+            room_name: savedRoomLog.room_name,
+            created_by: savedRoomLog.created_by,
+        });
+
+        return res.status(201).json({
+            message: 'Room log created successfully',
+            data: savedRoomLog,
+        });
+    } catch (error) {
+        log.error('[ROOM LOG API] Create error', error);
+
+        if (error.name === 'ValidationError') {
+            return res.status(422).json({
+                message: error.message,
+            });
+        }
+
+        return res.status(500).json({
+            message: 'Unable to save room log',
+            error: error.message,
+        });
+    }
+}
+
+async function roomLogFindAll(req, res) {
+    try {
+        const roomLogs = await RoomLog.find({})
+            .select('room_name created_by date time createdAt')
+            .sort({ createdAt: -1 })
+            .lean();
+
+        log.debug('[ROOM LOG API] Logs loaded', {
+            count: roomLogs.length,
+        });
+
+        return res.status(200).json(roomLogs);
+    } catch (error) {
+        log.error('[ROOM LOG API] Find all error', error);
+
+        return res.status(500).json({
+            message: 'Unable to load room logs',
+            error: error.message,
+        });
+    }
+}
+
+async function roomLogDelete(req, res) {
+    try {
+        const { id } = req.params;
+
+        const deletedRoomLog = await RoomLog.findByIdAndDelete(id);
+
+        if (!deletedRoomLog) {
+            return res.status(404).json({
+                message: 'Room log not found',
+            });
+        }
+
+        log.debug('[ROOM LOG API] Room log deleted', {
+            id: deletedRoomLog._id,
+            room_name: deletedRoomLog.room_name,
+            created_by: deletedRoomLog.created_by,
+        });
+
+        return res.status(200).json({
+            message: 'Room log deleted successfully',
+            id: deletedRoomLog._id,
+        });
+    } catch (error) {
+        log.error('[ROOM LOG API] Delete error', error);
+
+        if (error.name === 'CastError') {
+            return res.status(400).json({
+                message: 'Invalid room log ID',
+            });
+        }
+
+        return res.status(500).json({
+            message: 'Unable to delete room log',
+            error: error.message,
+        });
+    }
+}
+
 module.exports = {
     roomCreate,
+    roomLogCreate,
+    roomLogFindAll,
+    roomLogDelete,
     roomExists,
     roomFindBy,
     roomDeleteFindBy,

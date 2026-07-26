@@ -52,6 +52,16 @@ const sidebarToggle = body.querySelector('.sidebar-toggle');
 const navOverview = document.getElementById('navOverview');
 const navDash = document.getElementById('navDash');
 const navUsers = document.getElementById('navUsers');
+const navRoomLogs = document.getElementById('navRoomLogs');
+const dsRoomLogs = document.getElementById('dsRoomLogs');
+
+const roomLogsSearchInput = document.getElementById(
+    'roomLogsSearchInput'
+);
+
+const refreshRoomLogsBtn = document.getElementById(
+    'refresh-room-logs-btn'
+);
 const navC2C = document.getElementById('navC2C');
 const navP2P = document.getElementById('navP2P');
 const navSFU = document.getElementById('navSFU');
@@ -294,6 +304,54 @@ const usersDataTable = $('#usersTable').DataTable({
 });
 $('#usersTable').css('width', '100%');
 
+const roomLogsDataTable = $('#roomLogsTable').DataTable({
+    searching: true,
+    paging: true,
+    pageLength: 10,
+    lengthChange: false,
+    pagingType: 'simple_numbers',
+    info: false,
+    responsive: true,
+    scrollX: true,
+
+    // Date descending, then time descending.
+    order: [
+        [2, 'desc'],
+        [3, 'desc'],
+    ],
+
+    columnDefs: [
+        {
+            width: '35%',
+            targets: 0,
+        },
+        {
+            width: '20%',
+            targets: 1,
+        },
+        {
+            width: '15%',
+            targets: 2,
+        },
+        {
+            width: '15%',
+            targets: 3,
+        },
+        {
+            width: '15%',
+            targets: 4,
+            orderable: false,
+            searchable: false,
+        },
+        {
+            targets: [0, 1, 2, 3, 4],
+            className: 'dt-body-justify',
+        },
+    ],
+});
+
+$('#roomLogsTable').css('width', '100%');
+
 usersDataTable.on('draw', function () {
     initCustomDropdowns(document.getElementById('usersTable'));
 });
@@ -505,6 +563,7 @@ function handleUserRoles() {
                 }
                 if (role == 'admin') {
                     elemDisplay(navUsers, true);
+                    elemDisplay(navRoomLogs, true);
                     elemDisplay(navP2P, true);
                     elemDisplay(navSFU, true);
                     elemDisplay(navC2C, true);
@@ -524,6 +583,7 @@ function handleUserRoles() {
                     elemDisplay(navSFU, allowSFU);
                     elemDisplay(navC2C, allowC2C);
                     elemDisplay(navBRO, allowBRO);
+                    elemDisplay(navRoomLogs, false);
                 }
             }
             toggleElements();
@@ -788,6 +848,25 @@ navUsers.addEventListener('click', () => {
     loadUsers();
 });
 
+navRoomLogs.addEventListener('click', () => {
+    navShow([dsRoomLogs], navRoomLogs);
+    loadRoomLogs();
+});
+
+roomLogsSearchInput.addEventListener('keyup', function () {
+    roomLogsDataTable.search(this.value).draw();
+});
+
+refreshRoomLogsBtn.addEventListener('click', () => {
+    refreshRoomLogsBtn.classList.add('spinning');
+
+    loadRoomLogs();
+
+    setTimeout(() => {
+        refreshRoomLogsBtn.classList.remove('spinning');
+    }, 600);
+});
+
 navP2P.addEventListener('click', () => {
     navShow([p2p], navP2P);
     //p2pIframe.setAttribute('src', config.MiroTalk.P2P.Room);
@@ -895,6 +974,7 @@ function navShow(elements = [], activeNav = null) {
     elemDisplay(dsOverview, false);
     elemDisplay(dsRooms, false);
     elemDisplay(dsUsers, false);
+    elemDisplay(dsRoomLogs, false);
     elemDisplay(p2p, false);
     elemDisplay(sfu, false);
     elemDisplay(c2c, false);
@@ -1043,6 +1123,182 @@ function loadUsers() {
             console.error('[API] - USER GET ALL ERROR', err);
             popupMessage('error', `Failed to load users: ${err.message}`);
         });
+}
+
+function escapeRoomLogHtml(value) {
+    const element = document.createElement('div');
+
+    element.textContent =
+        value === null || value === undefined
+            ? ''
+            : String(value);
+
+    return element.innerHTML;
+}
+
+function loadRoomLogs() {
+    console.log('[ROOM LOG UI 1] Loading room logs');
+
+    roomLogFindAll()
+        .then((roomLogs) => {
+            console.log(
+                '[ROOM LOG UI 2] API response received',
+                roomLogs
+            );
+
+            if (!Array.isArray(roomLogs)) {
+                throw new Error(
+                    roomLogs?.message ||
+                        'Invalid room logs response'
+                );
+            }
+
+            roomLogsDataTable.clear();
+
+            roomLogs.forEach((roomLog) => {
+                const id = String(roomLog._id);
+
+                const row = [
+                    `<span translate="no">${escapeRoomLogHtml(
+                        roomLog.room_name
+                    )}</span>`,
+
+                    `<span translate="no">${escapeRoomLogHtml(
+                        roomLog.created_by
+                    )}</span>`,
+
+                    escapeRoomLogHtml(roomLog.date),
+
+                    escapeRoomLogHtml(roomLog.time),
+
+                    `<span class="action-group">
+                        <i
+                            class="uil uil-trash-alt action-icon danger"
+                            role="button"
+                            title="Delete room log"
+                            aria-label="Delete room log"
+                            onclick="deleteRoomLog('${id}')"
+                        ></i>
+                    </span>`,
+                ];
+
+                const rowNode =
+                    roomLogsDataTable.row.add(row).node();
+
+                rowNode.id = `room_log_${id}`;
+            });
+
+            roomLogsDataTable.columns.adjust().draw();
+
+            toggleRoomLogsList(roomLogs.length > 0);
+
+            console.log('[ROOM LOG UI 3] Table updated', {
+                count: roomLogs.length,
+            });
+        })
+        .catch((error) => {
+            console.error(
+                '[ROOM LOG UI] Load error',
+                error
+            );
+
+            const message =
+                error.response?.data?.message ||
+                error.message ||
+                'Unknown error';
+
+            popupMessage(
+                'error',
+                `Failed to load room logs: ${message}`
+            );
+
+            roomLogsDataTable.clear().draw();
+            toggleRoomLogsList(false);
+        });
+}
+
+function deleteRoomLog(id) {
+    Swal.fire({
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        position: 'top',
+        icon: 'warning',
+        title: 'Delete room log',
+        text: 'Are you sure you want to delete this room log?',
+        showCancelButton: true,
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#dc3545',
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+    }).then((result) => {
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        console.log('[ROOM LOG UI 4] Deleting room log', {
+            id,
+        });
+
+        roomLogDeleteById(id)
+            .then((response) => {
+                console.log(
+                    '[ROOM LOG UI 5] Delete response',
+                    response
+                );
+
+                roomLogsDataTable
+                    .row(`#room_log_${id}`)
+                    .remove()
+                    .draw();
+
+                const hasData =
+                    roomLogsDataTable.rows().count() > 0;
+
+                toggleRoomLogsList(hasData);
+
+                popupMessage(
+                    'toast',
+                    'Room log deleted successfully'
+                );
+            })
+            .catch((error) => {
+                console.error(
+                    '[ROOM LOG UI] Delete error',
+                    error
+                );
+
+                const message =
+                    error.response?.data?.message ||
+                    error.message ||
+                    'Unknown error';
+
+                popupMessage(
+                    'error',
+                    `Failed to delete room log: ${message}`
+                );
+            });
+    });
+}
+
+function toggleRoomLogsList(hasData) {
+    const emptyState = document.getElementById(
+        'roomLogsEmptyState'
+    );
+
+    const tableWrapper = document.getElementById(
+        'roomLogsTable_wrapper'
+    );
+
+    elemDisplay(emptyState, !hasData);
+
+    if (tableWrapper) {
+        tableWrapper.style.display = hasData ? '' : 'none';
+    }
 }
 
 function toggleUsersList(hasData) {

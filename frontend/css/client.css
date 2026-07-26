@@ -3392,3 +3392,155 @@ body.dark #usersTable tr:hover {
         height: 75px;
     }
 }
+
+
+/* ==================================================
+   ROOM LOGS
+   ================================================== */
+
+#navRoomLogs,
+#dsRoomLogs,
+#roomLogsEmptyState {
+    display: none;
+}
+
+.dsRoomLogs {
+    width: 100%;
+    overflow-x: auto;
+    animation: fadeIn 0.3s ease;
+}
+
+#roomLogsBtnDiv {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+}
+
+.room-logs-search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.room-logs-search-box i {
+    position: absolute;
+    left: 10px;
+    font-size: 16px;
+    color: var(--text-color);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+#roomLogsSearchInput {
+    height: 36px;
+    min-width: 220px;
+    padding: 0 12px 0 32px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--panel-color);
+    color: var(--text-color);
+    color-scheme: var(--input-color-schema);
+    font-size: 14px;
+    outline: none;
+}
+
+#roomLogsSearchInput:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+#roomLogsTable {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: var(--panel-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+#roomLogsTable thead tr:first-child th:first-child {
+    border-top-left-radius: 12px;
+}
+
+#roomLogsTable thead tr:first-child th:last-child {
+    border-top-right-radius: 12px;
+}
+
+#roomLogsTable tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 12px;
+}
+
+#roomLogsTable tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 12px;
+}
+
+#roomLogsTable th,
+#roomLogsTable td {
+    padding: 12px 16px;
+    border-top: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    border-left: none;
+    text-align: left;
+    font-size: 14px;
+    word-break: break-word;
+}
+
+#roomLogsTable th {
+    padding: 10px 16px;
+    background-color: var(--box1-color);
+    color: var(--text-color);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#roomLogsTable tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+#roomLogsTable tbody tr:nth-child(even) {
+    background-color: var(--tr-child-color);
+}
+
+#roomLogsTable tbody tr:hover {
+    background-color: var(--hover-bg-subtle);
+}
+
+#roomLogsTable tbody tr:last-child td {
+    border-bottom: none;
+}
+
+#roomLogsTable th.sorting::after {
+    content: ' \2195';
+    opacity: 0.3;
+    font-size: 10px;
+}
+
+#roomLogsTable th.sorting_asc::after {
+    content: ' \2191';
+    opacity: 0.8;
+    font-size: 10px;
+}
+
+#roomLogsTable th.sorting_desc::after {
+    content: ' \2193';
+    opacity: 0.8;
+    font-size: 10px;
+}
+
+@media (max-width: 560px) {
+    #roomLogsTable {
+        min-width: 650px;
+    }
+
+    #roomLogsSearchInput {
+        min-width: 180px;
+        width: 100%;
+    }
+}
