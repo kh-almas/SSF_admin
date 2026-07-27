@@ -525,16 +525,14 @@
                     <table id="myTable">
                         <thead>
                             <tr>
-                                <th id="tableAppName">Service</th>
                                 <th>Tag</th>
-                                <th>Email</th>
-                                <th>Phone</th>
                                 <th>Date</th>
                                 <th>Time</th>
                                 <th>Room</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
+
                         <tbody id="myTableBody"></tbody>
                     </table>
                 </div>
@@ -551,92 +549,30 @@
                     </div>
 
                     <div class="addrow-section">
-                        <span class="addrow-section-label">Service</span>
-                        <div class="addrow-field">
-                            <div class="addrow-field-icon"><i class="uil uil-rocket"></i></div>
-                            <div class="addrow-field-content">
-                                <span id="rowAppName" class="addrow-field-label" style="display:none;">MiroTalk</span>
-                                <div id="add-type-dropdown" class="custom-dropdown">
-                                    <div
-                                        class="custom-dropdown-trigger"
-                                        tabindex="0"
-                                        role="button"
-                                        aria-haspopup="listbox"
-                                        aria-expanded="false"
-                                    >
-                                        <span class="custom-dropdown-value">SFU</span>
-                                        <i class="uil uil-angle-down custom-dropdown-arrow"></i>
-                                    </div>
-                                    <div class="custom-dropdown-options" role="listbox">
-                                        <div
-                                                class="custom-dropdown-option selected"
-                                                data-value="SFU"
-                                                translate="no"
-                                                role="option"
-                                        >
-                                            SFU
-                                        </div>
-                                        <div
-                                            class="custom-dropdown-option"
-                                            data-value="P2P"
-                                            translate="no"
-                                            role="option"
-                                            style="display:none;"
-                                        >
-                                            P2P
-                                        </div>
-                                        <div
-                                            class="custom-dropdown-option"
-                                            data-value="C2C"
-                                            translate="no"
-                                            role="option"
-                                            style="display:none;"
-                                        >
-                                            C2C
-                                        </div>
-                                        <div
-                                            class="custom-dropdown-option"
-                                            data-value="BRO"
-                                            translate="no"
-                                            role="option"
-                                            style="display:none;"
-                                        >
-                                            BRO
-                                        </div>
-                                    </div>
-                                    <input type="hidden" id="add-type" value="SFU" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        <span class="addrow-section-label">
+                            Meeting
+                        </span>
 
-                    <div class="addrow-section">
-                        <span class="addrow-section-label">Contact</span>
                         <div class="addrow-field">
-                            <div class="addrow-field-icon"><i class="uil uil-tag-alt"></i></div>
-                            <div class="addrow-field-content">
-                                <label for="add-tag" class="addrow-field-label">Tag</label>
-                                <input id="add-tag" type="text" placeholder="e.g. Team Standup" name="tag" required />
+                            <div class="addrow-field-icon">
+                                <i class="uil uil-tag-alt"></i>
                             </div>
-                        </div>
-                        <div class="addrow-field">
-                            <div class="addrow-field-icon"><i class="uil uil-envelope"></i></div>
+
                             <div class="addrow-field-content">
-                                <label for="add-email" class="addrow-field-label">Email</label>
+                                <label
+                                    for="add-tag"
+                                    class="addrow-field-label"
+                                >
+                                    Tag
+                                </label>
+
                                 <input
-                                    id="add-email"
-                                    type="email"
-                                    placeholder="participant@email.com"
-                                    name="email"
+                                    id="add-tag"
+                                    type="text"
+                                    placeholder="e.g. Team Standup"
+                                    name="tag"
                                     required
                                 />
-                            </div>
-                        </div>
-                        <div class="addrow-field">
-                            <div class="addrow-field-icon"><i class="uil uil-phone"></i></div>
-                            <div class="addrow-field-content">
-                                <label for="add-phone" class="addrow-field-label">Phone (optional)</label>
-                                <input id="add-phone" type="text" placeholder="+1 234 567 890" name="phone" />
                             </div>
                         </div>
                     </div>

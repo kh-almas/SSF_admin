@@ -114,9 +114,10 @@ function isValidRoom(room) {
 }
 
 function isValidTag(tag) {
-    if (!tag.match(alphanumeric)) {
-        return '⚠️ The Tag must be alphanumeric!';
+    if (typeof tag !== 'string' || tag.trim() === '') {
+        return '⚠️ The Tag is required!';
     }
+
     return true;
 }
 

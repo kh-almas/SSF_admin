@@ -117,9 +117,6 @@ const navC2CLabel = document.getElementById('navC2CLabel');
 const navBROLabel = document.getElementById('navBROLabel');
 const navCMELabel = document.getElementById('navCMELabel');
 
-const tableAppName = document.getElementById('tableAppName');
-const rowAppName = document.getElementById('rowAppName');
-
 const myProfile = document.getElementById('myProfile');
 
 const dsOverview = document.getElementById('dsOverview');
@@ -217,12 +214,10 @@ const openAddBtn = document.getElementById('open-add-btn');
 const closeAddBtn = document.getElementById('add-close-btn');
 const panelBackdrop = document.getElementById('panelBackdrop');
 
-const addType = document.getElementById('add-type');
-const addTypeDropdown = document.getElementById('add-type-dropdown');
 const addTag = document.getElementById('add-tag');
-const addEmail = document.getElementById('add-email');
-const addPhone = document.getElementById('add-phone');
 const addDate = document.getElementById('add-date');
+
+
 const addTime = document.getElementById('add-time');
 const addRoom = document.getElementById('add-room');
 const genRoom = document.getElementById('gen-room');
@@ -263,36 +258,51 @@ const dataTable = $('#myTable').DataTable({
     info: false,
     responsive: true,
     scrollX: true,
-    order: [[4, 'asc']],
+
+    // Date is now column index 1.
+    order: [[1, 'asc']],
+
     columnDefs: [
-        { width: '10%', targets: 0 },
-        { width: '10%', targets: 1 },
-        { width: '20%', targets: 2 },
-        { width: '10%', targets: 3 },
-        { width: '10%', targets: 4 },
-        { width: '10%', targets: 5 },
-        { width: '20%', targets: 6 },
-        { width: '10%', targets: 7 },
         {
-            targets: [0, 6],
-            render: dropdownSearchRender,
+            width: '20%',
+            targets: 0,
         },
         {
-            targets: [0, 1, 2, 3, 4, 6],
-            type: 'string',
-            searchable: true,
+            width: '15%',
+            targets: 1,
         },
         {
-            targets: [5, 7],
+            width: '15%',
+            targets: 2,
+        },
+        {
+            width: '30%',
+            targets: 3,
+        },
+        {
+            width: '20%',
+            targets: 4,
             orderable: false,
             searchable: false,
         },
         {
-            targets: [0, 1, 2, 3, 4, 5, 6, 7],
+            targets: [3],
+            render: dropdownSearchRender,
+        },
+        {
+            targets: [0, 1, 2, 3],
+            type: 'string',
+            searchable: true,
+        },
+        {
+            targets: [0, 1, 2, 3, 4],
             className: 'dt-body-justify',
         },
-    ], // [MiroTalk, Tag, Email, Phone, Date, Time, Room, Actions]
+    ],
 });
+
+// [Tag, Date, Time, Room, Actions]
+
 $('#myTable').css('width', '100%');
 
 dataTable.on('draw', function () {
@@ -549,9 +559,6 @@ function loadConfig(cfg) {
     navC2CLabel.textContent = config.MiroTalk.C2C.Label || 'MiroTalk C2C';
     navBROLabel.textContent = config.MiroTalk.BRO.Label || 'MiroTalk BRO';
     navCMELabel.textContent = config.MiroTalk.CME?.Label || 'MiroTalk CME';
-    // tableAppName.textContent = appName;
-    tableAppName.textContent = "Service";
-    rowAppName.textContent = appName;
 }
 
 function handleTokens(cfg) {
@@ -641,11 +648,13 @@ function toggleElements() {
     elemDisplay(navC2C, config.MiroTalk.C2C.Visible);
     elemDisplay(navBRO, config.MiroTalk.BRO.Visible);
     elemDisplay(navCME, config.MiroTalk.CME?.Visible);
+
     elemDisplay(boxP2P, config.MiroTalk.P2P.GitHub.Visible);
     elemDisplay(boxSFU, config.MiroTalk.SFU.GitHub.Visible);
     elemDisplay(boxC2C, config.MiroTalk.C2C.GitHub.Visible);
     elemDisplay(boxBRO, config.MiroTalk.BRO.GitHub.Visible);
     elemDisplay(boxCME, config.MiroTalk.CME?.GitHub?.Visible);
+
     if (
         !config.MiroTalk.P2P.Visible &&
         !config.MiroTalk.SFU.Visible &&
@@ -656,6 +665,7 @@ function toggleElements() {
         elemDisplay(delAllBtn, false);
         elemDisplay(refreshBtn, false);
     }
+
     if (
         !config.MiroTalk.P2P.GitHub.Visible &&
         !config.MiroTalk.SFU.GitHub.Visible &&
@@ -665,20 +675,6 @@ function toggleElements() {
     ) {
         elemDisplay(boxesDS, false);
         elemDisplay(statsProjectsSection, false);
-    }
-    const dropdownOptions = addTypeDropdown.querySelectorAll('.custom-dropdown-option');
-    dropdownOptions.forEach((opt) => {
-        const val = opt.dataset.value;
-        if (val === 'P2P' && !config.MiroTalk.P2P.Visible) opt.remove();
-        else if (val === 'SFU' && !config.MiroTalk.SFU.Visible) opt.remove();
-        else if (val === 'C2C' && !config.MiroTalk.C2C.Visible) opt.remove();
-        else if (val === 'BRO' && !config.MiroTalk.BRO.Visible) opt.remove();
-    });
-    const firstOpt = addTypeDropdown.querySelector('.custom-dropdown-option');
-    if (firstOpt) {
-        firstOpt.classList.add('selected');
-        addType.value = firstOpt.dataset.value;
-        addTypeDropdown.querySelector('.custom-dropdown-value').textContent = firstOpt.textContent;
     }
 }
 
@@ -1652,7 +1648,6 @@ function addRow() {
 
     const requiredFields = [
         { el: addTag, valid: !!data.tag },
-        { el: addEmail, valid: !!data.email },
         { el: addDate, valid: !!data.date },
         { el: addTime, valid: !!data.time },
         { el: addRoom, valid: !!data.room },
@@ -1786,37 +1781,68 @@ function getRow(obj) {
         rooms = buildCustomDropdownHTML(obj._id + '_room', roomOptions, obj.room, false, isPast);
     }
 
-    const typeOptions = [
-        config.MiroTalk.P2P.Visible && { value: 'P2P', label: 'P2P' },
-        config.MiroTalk.SFU.Visible && { value: 'SFU', label: 'SFU' },
-        config.MiroTalk.C2C.Visible && { value: 'C2C', label: 'C2C' },
-        config.MiroTalk.BRO.Visible && { value: 'BRO', label: 'BRO' },
-    ].filter(Boolean);
-
     const ro = isPast ? ' readonly' : '';
 
     return [
-        `<td>${buildCustomDropdownHTML(obj._id + '_type', typeOptions, obj.type, false, isPast)}</td>`,
-        `<td><input id="${obj._id}_tag" type="text" name="tag" placeholder="Tag" value="${obj.tag}"${ro}/></td>`,
-        `<td><input id="${obj._id}_email" type="email" name="email" placeholder="Email address" value="${obj.email}"${ro}/></td>`,
-        `<td><input id="${obj._id}_phone" type="text" name="text" placeholder="Phone number" value="${obj.phone}"${ro}/></td>`,
-        `<td><input id="${obj._id}_date" type="text" name="date" placeholder="Date" value="${obj.date}" class="flatpickr-date"${ro}/></td>`,
-        `<td><input id="${obj._id}_time" type="text" name="time" placeholder="Time" value="${obj.time}" class="flatpickr-time"${ro}/></td>`,
+        `<td>
+            <input
+                id="${obj._id}_tag"
+                type="text"
+                name="tag"
+                placeholder="Tag"
+                value="${obj.tag || ''}"
+                ${ro}
+            />
+        </td>`,
+
+        `<td>
+            <input
+                id="${obj._id}_date"
+                type="text"
+                name="date"
+                placeholder="Date"
+                value="${obj.date || ''}"
+                class="flatpickr-date"
+                ${ro}
+            />
+        </td>`,
+
+        `<td>
+            <input
+                id="${obj._id}_time"
+                type="text"
+                name="time"
+                placeholder="Time"
+                value="${obj.time || ''}"
+                class="flatpickr-time"
+                ${ro}
+            />
+        </td>`,
+
         `<td>${rooms}</td>`,
+
         `<td>
             <div class="action-cell">
-                <span class="action-group">${inlineIcons.join('')}</span>
+                <span class="action-group">
+                    ${inlineIcons.join('')}
+                </span>
+
                 ${
                     actionItems.length > 0
                         ? `
-                <div class="action-dropdown-wrap">
-                    <button class="action-dropdown-trigger" onclick="toggleActionDropdown(this)" aria-label="More actions">
-                        <i class="uil uil-ellipsis-v"></i>
-                    </button>
-                    <div class="action-dropdown-menu">
-                        ${actionItems.join('\n                        ')}
-                    </div>
-                </div>`
+                    <div class="action-dropdown-wrap">
+                        <button
+                            class="action-dropdown-trigger"
+                            onclick="toggleActionDropdown(this)"
+                            aria-label="More actions"
+                        >
+                            <i class="uil uil-ellipsis-v"></i>
+                        </button>
+
+                        <div class="action-dropdown-menu">
+                            ${actionItems.join('\n')}
+                        </div>
+                    </div>`
                         : ''
                 }
             </div>
@@ -2404,54 +2430,90 @@ function getUUID4() {
 
 function getRoomURL(data, bro = true) {
     let roomURL;
+
     switch (data.type) {
         case 'P2P':
             roomURL = `${config.MiroTalk.P2P.Join}${data.room}`;
             break;
-        case 'SFU':
-            const name = window.localStorage.name || data.email;
+
+        case 'SFU': {
+            const name =
+                window.localStorage.name ||
+                getCookie('username') ||
+                getCookie('email') ||
+                window.localStorage.email ||
+                'Guest';
+
             roomURL =
                 tokens.sfu !== ''
                     ? `${config.MiroTalk.SFU.Join}?room=${data.room}&name=${name}&token=${tokens.sfu}`
                     : `${config.MiroTalk.SFU.Join}?room=${data.room}&name=${name}`;
+
             break;
+        }
+
         case 'C2C':
             roomURL = `${config.MiroTalk.C2C.Room}${data.room}`;
             break;
+
         case 'BRO':
             roomURL = bro
                 ? `${config.MiroTalk.BRO.Broadcast}${data.room}&name=Broadcast-${getRandomInt(99999)}`
                 : `${config.MiroTalk.BRO.Viewer}${data.room}%26name=Viewer-${getRandomInt(99999)}`;
             break;
+
         default:
+            console.error('[ROOM URL] Unsupported room type', {
+                type: data.type,
+            });
+            roomURL = '';
             break;
     }
+
     return roomURL;
 }
 
 function getRowValues(id) {
     return {
         userId: userId,
-        type: document.getElementById(id + '_type').value,
-        tag: document.getElementById(id + '_tag').value,
-        email: document.getElementById(id + '_email').value.toLowerCase(),
-        phone: document.getElementById(id + '_phone').value,
-        date: document.getElementById(id + '_date').value,
-        time: document.getElementById(id + '_time').value,
-        room: document.getElementById(id + '_room').value,
+
+        // Fixed room service. Keep uppercase.
+        type: 'SFU',
+
+        tag: document.getElementById(
+            id + '_tag'
+        ).value.trim(),
+
+        date: document.getElementById(
+            id + '_date'
+        ).value,
+
+        time: document.getElementById(
+            id + '_time'
+        ).value,
+
+        room: document.getElementById(
+            id + '_room'
+        ).value.trim(),
     };
 }
 
 function getFormValues() {
     const roomValue = user.allowedRoomsALL
-        ? addRoom.value.trim().replace(/\s+/g, '-')
-        : selRoom.value.trim().replace(/\s+/g, '-');
+        ? addRoom.value
+              .trim()
+              .replace(/\s+/g, '-')
+        : selRoom.value
+              .trim()
+              .replace(/\s+/g, '-');
+
     return {
         userId: userId,
-        type: addType.value,
-        tag: addTag.value,
-        email: addEmail.value.toLowerCase(),
-        phone: addPhone.value,
+
+        // Fixed in JavaScript and not shown in HTML.
+        type: 'SFU',
+
+        tag: addTag.value.trim(),
         date: addDate.value,
         time: addTime.value,
         room: roomValue,
@@ -2460,26 +2522,50 @@ function getFormValues() {
 
 function resetFormValues() {
     addTag.value = '';
-    addEmail.value = '';
-    addPhone.value = '';
-    addDate.value = new Date().toISOString().substring(0, 10);
-    addTime.value = new Date().toISOString().substring(11, 16);
+
+    addDate.value = new Date()
+        .toISOString()
+        .substring(0, 10);
+
+    addTime.value = new Date()
+        .toISOString()
+        .substring(11, 16);
+
     addRoom.value = getUUID4();
-    if (addDate._flatpickr) addDate._flatpickr.setDate(addDate.value, false);
-    if (addTime._flatpickr) addTime._flatpickr.setDate(addTime.value, false);
-    [addTag, addEmail, addDate, addTime, addRoom].forEach((el) => {
-        el.style.borderColor = '';
-        el.style.boxShadow = '';
+
+    if (addDate._flatpickr) {
+        addDate._flatpickr.setDate(
+            addDate.value,
+            false
+        );
+    }
+
+    if (addTime._flatpickr) {
+        addTime._flatpickr.setDate(
+            addTime.value,
+            false
+        );
+    }
+
+    [
+        addTag,
+        addDate,
+        addTime,
+        addRoom,
+    ].forEach((element) => {
+        element.style.borderColor = '';
+        element.style.boxShadow = '';
     });
 }
 
 // Clear validation styling on input
-[addTag, addEmail, addDate, addTime, addRoom].forEach((el) => {
-    el.addEventListener('input', () => {
-        el.style.borderColor = '';
-        el.style.boxShadow = '';
+[addTag,addDate,addTime,addRoom,].forEach((element) => {
+    element.addEventListener('input', () => {
+        element.style.borderColor = '';
+        element.style.boxShadow = '';
     });
 });
+
 [addUserUsername, addUserPassword].forEach((el) => {
     el.addEventListener('input', () => {
         el.style.borderColor = '';

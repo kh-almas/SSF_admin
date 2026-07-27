@@ -10,32 +10,61 @@ const log = new logs('Controllers-room');
 async function roomCreate(req, res) {
     try {
         if (!req.user || !req.user.username) {
-            return res.status(401).json({ message: 'Authentication required' });
+            return res.status(401).json({
+                message: 'Authentication required',
+            });
         }
 
-        const currentUser = await User.findOne({ username: req.user.username }).select('role').lean();
+        const currentUser = await User.findOne({
+            username: req.user.username,
+        })
+            .select('role')
+            .lean();
 
-        if (!currentUser || currentUser.role !== 'admin') {
-            return res.status(403).json({ message: 'Only admin can create rooms' });
+        if (
+            !currentUser ||
+            currentUser.role !== 'admin'
+        ) {
+            return res.status(403).json({
+                message: 'Only admin can create rooms',
+            });
         }
 
-        const { userId, type, tag, email, phone, date, time, room } = req.body;
+        const {
+            userId,
+            tag,
+            date,
+            time,
+            room,
+        } = req.body;
+
         const data = new Room({
-            userId: userId,
-            type: type,
-            tag: tag,
-            email: email,
-            phone: phone,
-            date: date,
-            time: time,
-            room: room,
+            userId,
+
+            // Always SFU, even if someone modifies JavaScript.
+            type: 'SFU',
+
+            tag,
+            date,
+            time,
+            room,
         });
 
-        const dataToSave = await data.save();
-        return res.status(200).json(dataToSave);
+        const savedRoom = await data.save();
+
+        log.debug('[ROOM] SFU room created', {
+            id: savedRoom._id,
+            room: savedRoom.room,
+            type: savedRoom.type,
+        });
+
+        return res.status(200).json(savedRoom);
     } catch (error) {
         log.error('Room create error', error);
-        return res.status(400).json({ message: error.message });
+
+        return res.status(400).json({
+            message: error.message,
+        });
     }
 }
 
@@ -93,17 +122,47 @@ async function roomGet(req, res) {
 async function roomUpdate(req, res) {
     try {
         const id = req.params.id;
-        const allowedFields = ['type', 'tag', 'email', 'phone', 'date', 'time', 'room'];
-        const updatedData = {};
+
+        const allowedFields = [
+            'tag',
+            'date',
+            'time',
+            'room',
+        ];
+
+        const updatedData = {
+            type: 'SFU',
+        };
+
         for (const field of allowedFields) {
-            if (req.body[field] !== undefined) updatedData[field] = req.body[field];
+            if (req.body[field] !== undefined) {
+                updatedData[field] = req.body[field];
+            }
         }
-        const options = { returnDocument: 'after' };
-        const result = await Room.findByIdAndUpdate(id, { $set: updatedData }, options);
-        res.send(result);
+
+        const result = await Room.findByIdAndUpdate(
+            id,
+            {
+                $set: updatedData,
+            },
+            {
+                returnDocument: 'after',
+            }
+        );
+
+        if (!result) {
+            return res.status(404).json({
+                message: 'Room not found',
+            });
+        }
+
+        return res.status(200).json(result);
     } catch (error) {
         log.error('Room update error', error);
-        res.status(400).json({ message: error.message });
+
+        return res.status(400).json({
+            message: error.message,
+        });
     }
 }
 
