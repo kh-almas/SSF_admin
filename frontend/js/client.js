@@ -297,7 +297,7 @@ const dataTable = $('#myTable').DataTable({
         },
         {
             targets: [0, 1, 2, 3, 4],
-            className: 'dt-body-justify',
+            className: 'dt-head-center dt-body-justify',
         },
     ],
 });
@@ -346,7 +346,7 @@ const usersDataTable = $('#usersTable').DataTable({
         },
         {
             targets: [0, 1, 2, 3, 4, 5],
-            className: 'dt-body-justify',
+            className: 'dt-head-center dt-body-justify',
         },
     ],
 });
@@ -393,7 +393,7 @@ const roomLogsDataTable = $('#roomLogsTable').DataTable({
         },
         {
             targets: [0, 1, 2, 3, 4],
-            className: 'dt-body-justify',
+            className: 'dt-head-center dt-body-justify',
         },
     ],
 });
