@@ -414,11 +414,12 @@ if (getMode && getMode === 'dark') {
 }
 if (getStatus === 'close') {
     sidebar.classList.add('close');
-} else {
-    sidebar.classList.remove('close');
-}
 
-updateSidebarToggleIcon();
+    sidebarToggle.classList.replace(
+        'uil-angle-left',
+        'uil-angle-right'
+    );
+}
 
 const toolTips = [
     { element: delAllBtn, text: 'Delete rooms', position: 'top' },
@@ -715,64 +716,23 @@ topModeToggle.addEventListener('click', () => {
     updateFlatpickrTheme();
 });
 
-function updateSidebarToggleIcon() {
+sidebarToggle.addEventListener('click', () => {
     const isClosed =
-        sidebar.classList.contains('close');
+        sidebar.classList.toggle('close');
 
-    sidebarToggle.classList.remove(
+    sidebarToggle.classList.toggle(
         'uil-angle-left',
-        'uil-angle-right'
+        !isClosed
     );
 
-    sidebarToggle.classList.add(
+    sidebarToggle.classList.toggle(
+        'uil-angle-right',
         isClosed
-            ? 'uil-angle-right'
-            : 'uil-angle-left'
     );
-
-    const label = isClosed
-        ? 'Expand sidebar'
-        : 'Collapse sidebar';
-
-    sidebarToggle.setAttribute(
-        'aria-label',
-        label
-    );
-
-    sidebarToggle.setAttribute(
-        'title',
-        label
-    );
-}
-
-function toggleSidebar() {
-    sidebar.classList.toggle('close');
 
     window.localStorage.status =
-        sidebar.classList.contains('close')
-            ? 'close'
-            : 'open';
-
-    updateSidebarToggleIcon();
-}
-
-sidebarToggle.addEventListener(
-    'click',
-    toggleSidebar
-);
-
-sidebarToggle.addEventListener(
-    'keydown',
-    (event) => {
-        if (
-            event.key === 'Enter' ||
-            event.key === ' '
-        ) {
-            event.preventDefault();
-            toggleSidebar();
-        }
-    }
-);
+        isClosed ? 'close' : 'open';
+});
 
 // Custom dropdown helpers
 function buildCustomDropdownHTML(id, options, selectedValue, translate, disabled) {
