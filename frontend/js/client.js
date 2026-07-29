@@ -258,6 +258,7 @@ const dataTable = $('#myTable').DataTable({
     info: false,
     responsive: true,
     scrollX: true,
+    autoWidth: false,
 
     // Date is now column index 1.
     order: [[1, 'asc']],
@@ -1593,9 +1594,10 @@ async function showDataTable() {
                         else if (obj.date === today) rowNode.classList.add('room-today');
                     }
                 });
-                dataTable.draw();
-                initVisibleRowsFlatpickr();
                 toggleRoomsList(true);
+                dataTable.draw(false);
+                adjustRoomsTableLayout();
+                initVisibleRowsFlatpickr();
 
                 const pastRooms = res.filter((obj) => obj.date < today);
                 if (pastRooms.length > 0) {
@@ -1679,12 +1681,19 @@ function addRow() {
             } else {
                 const tableRow = getRow(res);
                 if (tableRow) {
-                    dataTable.row.add(tableRow).node().id = res._id;
-                    dataTable.draw();
+                    const rowNode = dataTable.row.add(tableRow).node();
+
+                    rowNode.id = res._id;
+
+                    // The wrapper must be visible before DataTables draws.
+                    toggleRoomsList(true);
+
+                    dataTable.draw(false);
+                    adjustRoomsTableLayout();
+
                     addRowToolTips(res._id);
                     initVisibleRowsFlatpickr();
                     toggleAddRows();
-                    toggleRoomsList(true);
                     debouncedLoadStats();
                 }
             }
@@ -1784,52 +1793,45 @@ function getRow(obj) {
     const ro = isPast ? ' readonly' : '';
 
     return [
-        `<td>
-            <input
-                id="${obj._id}_tag"
-                type="text"
-                name="tag"
-                placeholder="Tag"
-                value="${obj.tag || ''}"
-                ${ro}
-            />
-        </td>`,
+        `<input
+            id="${obj._id}_tag"
+            type="text"
+            name="tag"
+            placeholder="Tag"
+            value="${obj.tag || ''}"
+            ${ro}
+        />`,
 
-        `<td>
-            <input
-                id="${obj._id}_date"
-                type="text"
-                name="date"
-                placeholder="Date"
-                value="${obj.date || ''}"
-                class="flatpickr-date"
-                ${ro}
-            />
-        </td>`,
+        `<input
+            id="${obj._id}_date"
+            type="text"
+            name="date"
+            placeholder="Date"
+            value="${obj.date || ''}"
+            class="flatpickr-date"
+            ${ro}
+        />`,
 
-        `<td>
-            <input
-                id="${obj._id}_time"
-                type="text"
-                name="time"
-                placeholder="Time"
-                value="${obj.time || ''}"
-                class="flatpickr-time"
-                ${ro}
-            />
-        </td>`,
+        `<input
+            id="${obj._id}_time"
+            type="text"
+            name="time"
+            placeholder="Time"
+            value="${obj.time || ''}"
+            class="flatpickr-time"
+            ${ro}
+        />`,
 
-        `<td>${rooms}</td>`,
+        rooms,
 
-        `<td>
-            <div class="action-cell">
-                <span class="action-group">
-                    ${inlineIcons.join('')}
-                </span>
+        `<div class="action-cell">
+            <span class="action-group">
+                ${inlineIcons.join('')}
+            </span>
 
-                ${
-                    actionItems.length > 0
-                        ? `
+            ${
+                actionItems.length > 0
+                    ? `
                     <div class="action-dropdown-wrap">
                         <button
                             class="action-dropdown-trigger"
@@ -1843,10 +1845,9 @@ function getRow(obj) {
                             ${actionItems.join('\n')}
                         </div>
                     </div>`
-                        : ''
-                }
-            </div>
-        </td>`,
+                    : ''
+            }
+        </div>`,
     ];
 }
 
@@ -2679,13 +2680,56 @@ function elemDisplay(elem, show) {
     elem.style.display = show ? 'flex' : 'none';
 }
 
+function adjustRoomsTableLayout() {
+    const tableWrapper = document.getElementById(
+        'myTable_wrapper'
+    );
+
+    if (
+        !tableWrapper ||
+        tableWrapper.style.display === 'none'
+    ) {
+        return;
+    }
+
+    // Wait until the browser has rendered the visible wrapper.
+    requestAnimationFrame(() => {
+        dataTable.columns.adjust();
+
+        // Only run when the Responsive extension is loaded.
+        if (
+            dataTable.responsive &&
+            typeof dataTable.responsive.recalc === 'function'
+        ) {
+            dataTable.responsive.recalc();
+        }
+    });
+}
+
 function toggleRoomsList(hasData) {
-    const emptyState = document.getElementById('emptyState');
-    const filterBar = document.getElementById('filterBar');
-    const tableWrapper = document.getElementById('myTable_wrapper');
+    const emptyState =
+        document.getElementById('emptyState');
+
+    const filterBar =
+        document.getElementById('filterBar');
+
+    const tableWrapper =
+        document.getElementById('myTable_wrapper');
+
     elemDisplay(emptyState, !hasData);
     elemDisplay(filterBar, hasData);
-    if (tableWrapper) tableWrapper.style.display = hasData ? '' : 'none';
+
+    if (!tableWrapper) {
+        return;
+    }
+
+    tableWrapper.style.display = hasData
+        ? ''
+        : 'none';
+
+    if (hasData) {
+        adjustRoomsTableLayout();
+    }
 }
 
 function getRandomInt(max) {
