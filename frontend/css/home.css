@@ -568,7 +568,7 @@ button:active {
 
 /* The actual image */
 .logo-img {
-    width: 350px;
+    width: 160px;
     height: auto;
     filter: drop-shadow(0 0 8px rgba(67, 159, 255, 0.55));
     transition: filter 0.3s ease;

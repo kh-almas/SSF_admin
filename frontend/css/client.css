@@ -157,7 +157,6 @@ button:focus-visible,
 .dsUsers {
     animation: fadeIn 0.3s ease;
 }
-
 nav {
     position: fixed;
     top: 0;
@@ -165,6 +164,8 @@ nav {
     height: 100%;
     width: 250px;
     padding: 10px 14px;
+    box-sizing: border-box;
+    overflow-x: hidden;
     background-color: var(--panel-color);
     border-right: 1px solid var(--border-color);
     transition: var(--tran-05);
@@ -178,19 +179,44 @@ nav .logo-name {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
     margin-top: 20px;
 }
 
 nav .logo-image {
     display: flex;
-    min-width: 45px;
+    align-items: center;
     justify-content: center;
+    width: 100%;
+    min-width: 45px;
+}
+
+/* Override the large logo-section styles inside the sidebar */
+nav .logo-image .logo-section {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+nav .logo-image .logo-wrapper {
+    width: 110px;
+    min-width: 110px;
+    height: 110px;
+    transition:
+        width 0.25s ease,
+        min-width 0.25s ease,
+        height 0.25s ease;
 }
 
 nav .logo-image img {
-    width: 40px;
+    display: block;
+    width: 110px;
+    max-width: 100%;
+    height: 110px;
     border-radius: 50%;
-    object-fit: cover;
+    object-fit: contain;
+    transition:
+        width 0.25s ease,
+        height 0.25s ease;
 }
 
 nav .logo-name .logo_name {
@@ -199,6 +225,35 @@ nav .logo-name .logo_name {
     font-size: 20px;
     font-weight: 600;
     transition: var(--tran-05);
+}
+
+/* Collapsed sidebar has only 45px available:
+   73px width - 28px horizontal padding = 45px */
+nav.close .logo-image {
+    width: 45px;
+    min-width: 45px;
+}
+
+nav.close .logo-image .logo-section {
+    width: 45px;
+}
+
+nav.close .logo-image .logo-wrapper {
+    width: 45px;
+    min-width: 45px;
+    height: 45px;
+}
+
+nav.close .logo-image img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+/* Large decoration cannot fit inside the collapsed sidebar */
+nav.close .logo-glow-ring,
+nav.close .logo-accent-dot {
+    display: none;
 }
 
 nav.close .logo_name {
@@ -3543,4 +3598,20 @@ body.dark #usersTable tr:hover {
         min-width: 180px;
         width: 100%;
     }
+}
+
+.sidebar-toggle {
+    cursor: pointer;
+    font-size: 28px;
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+    color: var(--accent-color);
+}
+
+.sidebar-toggle:active {
+    transform: scale(0.9);
 }

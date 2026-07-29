@@ -412,7 +412,13 @@ if (getMode && getMode === 'dark') {
     body.classList.toggle('dark');
     topModeToggle.querySelector('i').className = 'uil uil-sun';
 }
-if (getStatus && getStatus === 'close') sidebar.classList.toggle('close');
+if (getStatus === 'close') {
+    sidebar.classList.add('close');
+} else {
+    sidebar.classList.remove('close');
+}
+
+updateSidebarToggleIcon();
 
 const toolTips = [
     { element: delAllBtn, text: 'Delete rooms', position: 'top' },
@@ -527,7 +533,7 @@ function loadConfig(cfg) {
     console.log('Config', config);
     const appName = config?.App?.Name || 'MiroTalk';
     // const appLogo = config?.App?.Logo || '../Images/logo.png';
-    const appLogo = '../Images/ssf_wing.png';
+    const appLogo = '../Images/ssf_round.png';
     myProfile.setAttribute('href', config.Author.Profile);
     repoP2P.setAttribute('href', config.MiroTalk.P2P.GitHub.Repo);
     starP2P.setAttribute('href', config.MiroTalk.P2P.GitHub.Star);
@@ -709,10 +715,64 @@ topModeToggle.addEventListener('click', () => {
     updateFlatpickrTheme();
 });
 
-sidebarToggle.addEventListener('click', () => {
+function updateSidebarToggleIcon() {
+    const isClosed =
+        sidebar.classList.contains('close');
+
+    sidebarToggle.classList.remove(
+        'uil-angle-left',
+        'uil-angle-right'
+    );
+
+    sidebarToggle.classList.add(
+        isClosed
+            ? 'uil-angle-right'
+            : 'uil-angle-left'
+    );
+
+    const label = isClosed
+        ? 'Expand sidebar'
+        : 'Collapse sidebar';
+
+    sidebarToggle.setAttribute(
+        'aria-label',
+        label
+    );
+
+    sidebarToggle.setAttribute(
+        'title',
+        label
+    );
+}
+
+function toggleSidebar() {
     sidebar.classList.toggle('close');
-    window.localStorage.status = sidebar.classList.contains('close') ? 'close' : 'open';
-});
+
+    window.localStorage.status =
+        sidebar.classList.contains('close')
+            ? 'close'
+            : 'open';
+
+    updateSidebarToggleIcon();
+}
+
+sidebarToggle.addEventListener(
+    'click',
+    toggleSidebar
+);
+
+sidebarToggle.addEventListener(
+    'keydown',
+    (event) => {
+        if (
+            event.key === 'Enter' ||
+            event.key === ' '
+        ) {
+            event.preventDefault();
+            toggleSidebar();
+        }
+    }
+);
 
 // Custom dropdown helpers
 function buildCustomDropdownHTML(id, options, selectedValue, translate, disabled) {
