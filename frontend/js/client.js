@@ -1380,6 +1380,19 @@ function getUserRow(u) {
     userInlineIcons.push(
         `<i id="usave_${u._id}" onclick="saveUser('${u._id}')" class="uil uil-save action-icon" title="Save"></i>`
     );
+
+    userInlineIcons.push(
+        `<i
+            id="ucopy_${u._id}"
+            onclick="resetAndCopyUserCredentials('${u._id}')"
+            class="uil uil-copy action-icon"
+            role="button"
+            title="Reset random password and copy credentials"
+            aria-label="Reset random password and copy credentials"
+        ></i>`
+    );
+
+
     if (!isSelf) {
         userInlineIcons.push(
             `<i id="udel_${u._id}" onclick="deleteUser('${u._id}')" class="uil uil-trash-alt action-icon danger" title="Delete"></i>`
@@ -2355,6 +2368,128 @@ function generateRandomPassword(length = 12) {
         [password[i], password[j]] = [password[j], password[i]];
     }
     return password.join('');
+}
+
+async function resetAndCopyUserCredentials(id) {
+    const usernameInput = document.getElementById(
+        `uname_${id}`
+    );
+
+    if (!usernameInput) {
+        popupMessage('error', 'User information not found');
+        return;
+    }
+
+    const username = usernameInput.value.trim();
+
+    const confirmation = await Swal.fire({
+        allowOutsideClick: false,
+        allowEscapeKey: true,
+        position: 'top',
+        icon: 'warning',
+        title: 'Reset user password',
+        text: `Generate a new random password for ${username}?`,
+        showCancelButton: true,
+        confirmButtonText: 'Reset and Copy',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#dc3545',
+        showClass: {
+            popup:
+                'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup:
+                'animate__animated animate__fadeOutUp',
+        },
+    });
+
+    if (!confirmation.isConfirmed) {
+        return;
+    }
+
+    const copyButton = document.getElementById(
+        `ucopy_${id}`
+    );
+
+    const newPassword = generateRandomPassword(12);
+
+    if (copyButton) {
+        btnLoading(copyButton);
+    }
+
+    try {
+        const response = await userUpdate(id, {
+            password: newPassword,
+        });
+
+        if (response?.message) {
+            popupMessage('warning', response.message);
+            return;
+        }
+
+        const credentials =
+            `Username: ${username}\n` +
+            `Password: ${newPassword}`;
+
+        try {
+            await navigator.clipboard.writeText(
+                credentials
+            );
+
+            popupMessage(
+                'toast',
+                'Password reset and credentials copied'
+            );
+        } catch (clipboardError) {
+            console.error(
+                'Clipboard copy failed',
+                clipboardError
+            );
+
+            // Password was reset successfully, so display it
+            // when automatic clipboard access fails.
+            await Swal.fire({
+                position: 'top',
+                icon: 'success',
+                title: 'Password reset successfully',
+                text: 'Automatic copying failed. Copy the credentials below manually.',
+                input: 'textarea',
+                inputValue: credentials,
+                inputAttributes: {
+                    readonly: true,
+                },
+                confirmButtonText: 'Close',
+            });
+        }
+
+        // Clear any manually entered password from the table.
+        const passwordInput = document.getElementById(
+            `upassword_${id}`
+        );
+
+        if (passwordInput) {
+            passwordInput.value = '';
+        }
+    } catch (error) {
+        console.error(
+            'Reset user password error',
+            error
+        );
+
+        const message =
+            error.response?.data?.message ||
+            error.message ||
+            'Unknown error';
+
+        popupMessage(
+            'error',
+            `Failed to reset password: ${message}`
+        );
+    } finally {
+        if (copyButton) {
+            btnReset(copyButton);
+        }
+    }
 }
 
 function togglePasswordVisibility(input, btn) {
