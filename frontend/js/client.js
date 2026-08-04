@@ -1478,7 +1478,7 @@ function saveUser(id) {
             position: 'top',
             icon: 'warning',
             title: 'Assign admin role',
-            text: 'Are you sure you want to assign the admin role to this user?',
+            text: 'Are you sure you want to update this user information?',
             showDenyButton: true,
             confirmButtonText: 'Yes',
             denyButtonText: 'No',
