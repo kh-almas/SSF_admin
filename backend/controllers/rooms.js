@@ -88,7 +88,7 @@ async function roomExists(req, res) {
 
 async function roomFindBy(req, res) {
     try {
-        const data = await Room.find({ userId: req.params.userId });
+        const data = await Room.find();
         res.json(data);
     } catch (error) {
         log.error('Room findByUserId error', error);

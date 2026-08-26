@@ -16,7 +16,6 @@ npm-debug.log
 .mongodb_data_local
 
 # personal
-.env
 config.js
 docker-push.sh
 docker-compose.yml
@@ -26,3 +25,4 @@ marketing
 
 # VSCode settings
 .vscode/
+config.bat
