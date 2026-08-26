@@ -1945,7 +1945,10 @@ function setRandomRoom(id) {
 
 function copyRoom(id) {
     const data = getRowValues(id);
-    const roomURL = getRoomURL(data);
+    const roomURL =
+        data.type === 'SFU'
+            ? `${config.MiroTalk.SFU.Join.replace(/\/+$/, '')}/${encodeURIComponent(data.room)}`
+            : getRoomURL(data);
 
     navigator.clipboard.writeText(roomURL).then(
         () => {
