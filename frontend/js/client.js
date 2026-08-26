@@ -1633,41 +1633,41 @@ async function showDataTable() {
                 initVisibleRowsFlatpickr();
 
                 const pastRooms = res.filter((obj) => obj.date < today);
-                if (pastRooms.length > 0) {
-                    Swal.fire({
-                        allowOutsideClick: false,
-                        allowEscapeKey: false,
-                        position: 'top',
-                        icon: 'warning',
-                        title: 'Expired rooms found',
-                        text: `You have ${pastRooms.length} expired room${pastRooms.length > 1 ? 's' : ''}. Would you like to delete them?`,
-                        showDenyButton: true,
-                        confirmButtonText: 'Yes, delete',
-                        denyButtonText: 'No, keep',
-                        showClass: { popup: 'animate__animated animate__fadeInDown' },
-                        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            const pastIds = pastRooms.map((r) => r._id);
-                            Promise.all(pastIds.map((id) => roomDelete(id)))
-                                .then(() => {
-                                    console.log('[API] - DELETE PAST ROOMS RESPONSE', pastIds);
-                                    pastIds.forEach((id) => dataTable.row(`#${id}`).remove());
-                                    dataTable.draw();
-                                    toggleRoomsList(dataTable.rows().count() > 0);
-                                    debouncedLoadStats();
-                                    popupMessage(
-                                        'toast',
-                                        `${pastIds.length} expired room${pastIds.length > 1 ? 's' : ''} deleted`
-                                    );
-                                })
-                                .catch((err) => {
-                                    console.log('[API] - DELETE PAST ROOMS ERROR', err);
-                                    popupMessage('error', `Failed to delete expired rooms: ${err.message}`);
-                                });
-                        }
-                    });
-                }
+                // if (pastRooms.length > 0) {
+                //     Swal.fire({
+                //         allowOutsideClick: false,
+                //         allowEscapeKey: false,
+                //         position: 'top',
+                //         icon: 'warning',
+                //         title: 'Expired rooms found',
+                //         text: `You have ${pastRooms.length} expired room${pastRooms.length > 1 ? 's' : ''}. Would you like to delete them?`,
+                //         showDenyButton: true,
+                //         confirmButtonText: 'Yes, delete',
+                //         denyButtonText: 'No, keep',
+                //         showClass: { popup: 'animate__animated animate__fadeInDown' },
+                //         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+                //     }).then((result) => {
+                //         if (result.isConfirmed) {
+                //             const pastIds = pastRooms.map((r) => r._id);
+                //             Promise.all(pastIds.map((id) => roomDelete(id)))
+                //                 .then(() => {
+                //                     console.log('[API] - DELETE PAST ROOMS RESPONSE', pastIds);
+                //                     pastIds.forEach((id) => dataTable.row(`#${id}`).remove());
+                //                     dataTable.draw();
+                //                     toggleRoomsList(dataTable.rows().count() > 0);
+                //                     debouncedLoadStats();
+                //                     popupMessage(
+                //                         'toast',
+                //                         `${pastIds.length} expired room${pastIds.length > 1 ? 's' : ''} deleted`
+                //                     );
+                //                 })
+                //                 .catch((err) => {
+                //                     console.log('[API] - DELETE PAST ROOMS ERROR', err);
+                //                     popupMessage('error', `Failed to delete expired rooms: ${err.message}`);
+                //                 });
+                //         }
+                //     });
+                // }
             } else {
                 toggleRoomsList(false);
             }
